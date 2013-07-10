@@ -1,0 +1,65 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+
+"acess_openstc_partner_activity_dst","openstc_partner_activity dst","model_openstc_partner_activity","openstc_dst","1","1","1","1"
+"acess_openstc_partner_activity_elu","openstc_partner_activity elu","model_openstc_partner_activity","openstc_elu","1","1","1","1"
+"acess_openstc_partner_activity_compta","openstc_partner_activity compta","model_openstc_partner_activity","account.group_account_user","1","1","1","1"
+"acess_openstc_partner_activity_manager","openstc_partner_activity manager","model_openstc_partner_activity","openstc_manager","1","1","1","1"
+"acess_openstc_partner_activity_employee","openstc_partner_activity employee","model_openstc_partner_activity","openstc_employee","1","1","1","1"
+
+access_openstc_openstc_partner_type_qualifier,openstc_openstc_partner_type qualifier,model_openstc_partner_type,base.group_user,1,0,0,0
+access_openstc_openstc_partner_type_employee,openstc_openstc_partner_type employee,model_openstc_partner_type,openstc_employee,1,0,0,0
+access_openstc_openstc_partner_type_qualifier,openstc_openstc_partner_type qualifier,model_openstc_partner_type,openstc_qualifier,1,1,1,0
+access_openstc_openstc_partner_type_dst,openstc_openstc_partner_type dst,model_openstc_partner_type,openstc_dst,1,1,1,1
+
+access_res_users,res_users,model_res_users,base.group_user,1,0,0,0
+access_res_users,res_users,model_res_users,openstc_dst,1,1,1,1
+
+
+access_openstc_equipment_agent,openstc_equipment agent,model_openstc_equipment,openstc_agent,1,1,1,0
+access_openstc_equipment_employee,openstc_equipment employee,model_openstc_equipment,openstc_employee,1,0,0,0
+access_openstc_equipment_qualifier,openstc_equipment qualifier,model_openstc_equipment,openstc_qualifier,1,1,1,0
+access_openstc_equipment_dst,openstc_equipment dst,model_openstc_equipment,openstc_dst,1,1,1,1
+
+access_openstc_service_qualifier,openstc_service qualifier,model_openstc_service,openstc_qualifier,1,1,1,0
+access_openstc_service_dst,openstc_service dst,model_openstc_service,openstc_dst,1,1,1,1
+access_openstc_service_employee,openstc_service employee,model_openstc_service,openstc_employee,1,0,0,0
+
+access_openstc_site_type_qualifier,openstc_site_type qualifier,model_openstc_site_type,openstc_qualifier,1,1,1,0
+access_openstc_site_type_employee,openstc_site_type employee,model_openstc_site_type,openstc_employee,1,0,0,0
+access_openstc_site_type_dst,openstc_site_type dst,model_openstc_site_type,openstc_dst,1,1,1,1
+
+access_openstc_team_qualifier,openstc_team qualifier,model_openstc_team,openstc_qualifier,1,0,0,0
+access_openstc_team_employee,openstc_team employee,model_openstc_team,openstc_employee,1,0,0,0
+access_openstc_team_dst,openstc_team dst,model_openstc_team,openstc_dst,1,1,1,1
+
+access_openstc_site_qualifier,openstc_site qualifier,model_openstc_site,openstc_qualifier,1,1,1,0
+access_openstc_site_employee,openstc_site employee,model_openstc_site,openstc_employee,1,0,0,0
+access_openstc_site_dst,openstc_site dst,model_openstc_site,openstc_dst,1,1,1,1
+
+access_openstc_users_accreditation_dst,openstc_users_accreditation dst,model_openstc_users_accreditation,openbase.openstc_dst,1,1,1,1
+access_openstc_users_accreditation_qualifier,openstc_users_accreditation qualifier,model_openstc_users_accreditation,openbase.openstc_qualifier,1,1,1,1
+access_openstc_users_accreditation_agent,openstc_users_accreditation agent,model_openstc_users_accreditation,openbase.openstc_agent,1,1,1,1
+access_openstc_users_accreditation_employee,openstc_users_accreditation employee,model_openstc_users_accreditation,openbase.openstc_employee,1,1,1,1
+access_openstc_users_accreditation_accueil,openstc_users_accreditation accueil,model_openstc_users_accreditation,openbase.openstc_accueil,1,1,1,1
+access_openstc_users_accreditation_manager,openstc_users_accreditation manager,model_openstc_users_accreditation,openbase.openstc_manager,1,1,1,1
+
+access_openstc_users_license_dst,openstc_users_license dst,model_openstc_users_license,openbase.openstc_dst,1,1,1,1
+access_openstc_users_license_qualifier,openstc_users_license qualifier,model_openstc_users_license,openbase.openstc_qualifier,1,1,1,1
+access_openstc_users_license_agent,openstc_users_license agent,model_openstc_users_license,openbase.openstc_agent,1,1,1,1
+access_openstc_users_license_employee,openstc_users_license employee,model_openstc_users_license,openbase.openstc_employee,1,1,1,1
+access_openstc_users_license_accueil,openstc_users_license accueil,model_openstc_users_license,openbase.openstc_accueil,1,1,1,1
+access_openstc_users_license_manager,openstc_users_license manager,model_openstc_users_license,openbase.openstc_manager,1,1,1,1
+
+access_openstc_users_accreditation_rel_dst,openstc_users_accreditation_rel dst,model_openstc_users_accreditation_rel,openbase.openstc_dst,1,1,1,1
+access_openstc_users_accreditation_rel_qualifier,openstc_users_accreditation_rel qualifier,model_openstc_users_accreditation_rel,openbase.openstc_qualifier,1,1,1,1
+access_openstc_users_accreditation_rel_agent,openstc_users_accreditation_rel agent,model_openstc_users_accreditation_rel,openbase.openstc_agent,1,1,1,1
+access_openstc_users_accreditation_rel_employee,openstc_users_accreditation_rel employee,model_openstc_users_accreditation_rel,openbase.openstc_employee,1,1,1,1
+access_openstc_users_accreditation_rel_accueil,openstc_users_accreditation_rel accueil,model_openstc_users_accreditation_rel,openbase.openstc_accueil,1,1,1,1
+access_openstc_users_accreditation_rel_manager,openstc_users_accreditation_rel manager,model_openstc_users_accreditation_rel,openbase.openstc_manager,1,1,1,1
+
+access_openstc_users_license_rel_dst,openstc_users_license_rel dst,model_openstc_users_license_rel,openbase.openstc_dst,1,1,1,1
+access_openstc_users_license_rel_qualifier,openstc_users_license_rel qualifier,model_openstc_users_license_rel,openbase.openstc_qualifier,1,1,1,1
+access_openstc_users_license_rel_agent,openstc_users_license_rel agent,model_openstc_users_license_rel,openbase.openstc_agent,1,1,1,1
+access_openstc_users_license_rel_employee,openstc_users_license_rel employee,model_openstc_users_license_rel,openbase.openstc_employee,1,1,1,1
+access_openstc_users_license_rel_accueil,openstc_users_license_rel accueil,model_openstc_users_license_rel,openbase.openstc_accueil,1,1,1,1
+access_openstc_users_license_rel_manager,openstc_users_license_rel manager,model_openstc_users_license_rel,openbase.openstc_manager,1,1,1,1
