@@ -14,7 +14,7 @@
     "description": """
     Module de Base pour toute installation d'une suite logiciel SICLIC.
     Il contient :
-    * définition des modèles cocnernant la structure d'une mairie (Services, Groups, Teams, Users)
+    * définition des modèles concernant la structure d'une mairie (Services, Groups, Teams, Users)
     * Données communes: Types de partner, usage de produits (maintenance, réservation, achats, ventes)
     * définition des modèles des sites et types de sites
     """,
