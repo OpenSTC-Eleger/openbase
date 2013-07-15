@@ -19,8 +19,8 @@
     * définition des modèles des sites et types de sites
     """,
     "data": [
-        "views/base_data.xml",
         "views/openbase_data.xml",
+        "views/base_data.xml",
         "views/openbase_views.xml",
         "views/openbase_menu.xml",
         

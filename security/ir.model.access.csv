@@ -1,5 +1,4 @@
 "id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
-
 "acess_openstc_partner_activity_dst","openstc_partner_activity dst","model_openstc_partner_activity","openstc_dst","1","1","1","1"
 "acess_openstc_partner_activity_elu","openstc_partner_activity elu","model_openstc_partner_activity","openstc_elu","1","1","1","1"
 "acess_openstc_partner_activity_compta","openstc_partner_activity compta","model_openstc_partner_activity","account.group_account_user","1","1","1","1"
@@ -14,7 +13,6 @@ access_openstc_openstc_partner_type_dst,openstc_openstc_partner_type dst,model_o
 access_res_users,res_users,model_res_users,base.group_user,1,0,0,0
 access_res_users,res_users,model_res_users,openstc_dst,1,1,1,1
 
-
 access_openstc_equipment_agent,openstc_equipment agent,model_openstc_equipment,openstc_agent,1,1,1,0
 access_openstc_equipment_employee,openstc_equipment employee,model_openstc_equipment,openstc_employee,1,0,0,0
 access_openstc_equipment_qualifier,openstc_equipment qualifier,model_openstc_equipment,openstc_qualifier,1,1,1,0
@@ -22,7 +20,8 @@ access_openstc_equipment_dst,openstc_equipment dst,model_openstc_equipment,opens
 
 access_openstc_service_qualifier,openstc_service qualifier,model_openstc_service,openstc_qualifier,1,1,1,0
 access_openstc_service_dst,openstc_service dst,model_openstc_service,openstc_dst,1,1,1,1
-access_openstc_service_employee,openstc_service employee,model_openstc_service,openstc_employee,1,0,0,0
+access_openstc_service elu,openstc_service elu,model_openstc_service,openbase.openstc_elu,1,1,1,1
+access_openstc_service employee,openstc_service employee,model_openstc_service,openbase.openstc_employee,1,1,1,1
 
 access_openstc_site_type_qualifier,openstc_site_type qualifier,model_openstc_site_type,openstc_qualifier,1,1,1,0
 access_openstc_site_type_employee,openstc_site_type employee,model_openstc_site_type,openstc_employee,1,0,0,0
