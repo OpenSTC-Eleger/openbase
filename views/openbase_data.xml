@@ -103,6 +103,10 @@
 	        </field>
 		 </record>
 
+ 	<record id="openstc_prets_partner_type_asso" model="openstc.partner.type">
+	    <field name="name">Association</field>
+	    <field name="code">ASSOCIATION</field>
+	</record>
 		 
 	</data>
 	
