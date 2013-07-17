@@ -19,6 +19,7 @@
     * définition des modèles des sites et types de sites
     """,
     "data": [
+        "data/openstc.site.type.csv",
         "views/openbase_data.xml",
         "views/base_data.xml",
         "views/openbase_views.xml",

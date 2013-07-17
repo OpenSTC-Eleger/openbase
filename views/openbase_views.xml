@@ -149,22 +149,26 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Site">
-                	<group colspan="4" col="4">
-                    	<separator string="General" colspan="6"/>
-                		<field name="name"/>
-                		<field name="type"/>
-                	</group>
-                	<group colspan="2" col="2">
-                    	<separator string="Organisation" colspan="2"/>
-                		<field name="service_ids"/>
-                		<field name="site_parent_id"/>
-                	</group>
-                	<group colspan="2" col="2">
-                    	<separator string="Properties" colspan="2"/>
-						<field name="lenght"/>
-                		<field name="width"/>
-                		<field name="surface"/>
-                	</group>
+                	<notebook>
+                	    <page string="General">
+		                	<group colspan="4" col="4">
+		                    	<separator string="General" colspan="6"/>
+		                		<field name="name"/>
+		                		<field name="type"/>
+		                	</group>
+		                	<group colspan="2" col="2">
+		                    	<separator string="Organisation" colspan="2"/>
+		                		<field name="service_ids"/>
+		                		<field name="site_parent_id"/>
+		                	</group>
+		                	<group colspan="2" col="2">
+		                    	<separator string="Properties" colspan="2"/>
+								<field name="lenght"/>
+		                		<field name="width"/>
+		                		<field name="surface"/>
+		                	</group>
+                		</page>
+                	</notebook>
                 </form>
             </field>
         </record>
@@ -178,7 +182,6 @@
             <field name="arch" type="xml">
                 <tree string="Sites" >
                		<field name="name"/>
-               		<field name="service"/>
                		<field name="type"/>
                		<field name="site_parent_id"/>
                		<field name="lenght"/>
