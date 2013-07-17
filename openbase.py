@@ -234,15 +234,15 @@ class users(osv.osv):
             #Calculates the agents can be added to the team
 
 
-    #Get lists officers/teams where user is the referent on
+#Get lists officers/teams where user is the referent on
     def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
         res = {}
         user_obj = self.pool.get('res.users')
         team_obj = self.pool.get('openstc.team')
 
 
-        #get list of all agents
-        all_officer_ids = user_obj.search(cr, uid, []);
+        #get list of all agents expect administrator
+        all_officer_ids = user_obj.search(cr, uid, [('id','<>','1')]);
         all_team_ids = team_obj.search(cr, uid, []);
 
         #get list of all teams
@@ -265,7 +265,8 @@ class users(osv.osv):
             for officer in user_obj.read(cr, uid, all_officer_ids, ['id','name','firstname']):
                 newOfficer = { 'id'  : officer['id'],
                                'name' : officer['name'],
-                               'firstname' : officer['firstname']
+                               'firstname' : officer['firstname'],
+                               'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or '')
                             }
                 officers.append(newOfficer)
             res['officers'] =  officers
@@ -290,7 +291,8 @@ class users(osv.osv):
                         if (service_id in officer.service_ids) and (officer.id not in officers):
                             newOfficer = { 'id'  : officer.id,
                                           'name' : officer.name,
-                                          'firstname' : officer.firstname
+                                          'firstname' : officer.firstname,
+                                          'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or '')
                                           }
                             officers.append(newOfficer)
                 res['officers'] = officers
@@ -320,7 +322,8 @@ class users(osv.osv):
                             if (team_id.id in managerTeamID) and (officer.id not in officers) :
                                 newOfficer = { 'id'  : officer.id,
                                               'name' : officer.name,
-                                              'firstname' : officer.firstname
+                                              'firstname' : officer.firstname,
+                                              'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or '')
                                           }
                                 officers.append(newOfficer)
                                 break
