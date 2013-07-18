@@ -142,23 +142,19 @@ class site(osv.osv):
 
     #return all services
     def _get_services(self, cr, uid, ids, fields, arg, context):
-        res = {}
+        res = []
         service_obj = self.pool.get('openstc.service')
 
         for id in ids:
             #get current team object
             site = self.browse(cr, uid, id, context=context)
             #get list of agents already belongs to team
-            site_services = ""
-            cpt = 0
+            services = []
             for service_record in site.service_ids:
-                 site_services += service_record.name
-                 cpt+=1
-                 if cpt!=len(site.service_ids) :
-                     site_services += ', '
+                 services.append((service_record.id, service_record.name))
 
-            res[id] = site_services
-        return res
+            res.append((id, services))
+        return dict(res)
 
 
     _columns = {
