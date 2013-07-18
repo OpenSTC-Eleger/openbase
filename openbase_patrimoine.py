@@ -37,7 +37,7 @@ class product_product(osv.osv):
         'openstc_reservable':lambda *a: False,
         'openstc_maintenance':lambda *a: False,
     }
- 
+
 product_product()
 #----------------------------------------------------------
 # Equipments
@@ -88,7 +88,7 @@ class equipment(osv.osv):
             'year': fields.integer('Year', select=1),
             'time': fields.integer('Time', select=1),
             'km': fields.integer('Km', select=1),
-                        
+
             'manager_id':fields.many2one('res.users','Responsable'),
             'energy_type':fields.char('Type d\'énergie',size=128),
             'length_amort':fields.integer('Durée d\'amortissement'),
@@ -140,6 +140,27 @@ class site(osv.osv):
         res = self.name_get(cr, uid, ids, context=context)
         return dict(res)
 
+    #return all services
+    def _get_services(self, cr, uid, ids, fields, arg, context):
+        res = {}
+        service_obj = self.pool.get('openstc.service')
+
+        for id in ids:
+            #get current team object
+            site = self.browse(cr, uid, id, context=context)
+            #get list of agents already belongs to team
+            site_services = ""
+            cpt = 0
+            for service_record in site.service_ids:
+                 site_services += service_record.name
+                 cpt+=1
+                 if cpt!=len(site.service_ids) :
+                     site_services += ', '
+
+            res[id] = site_services
+        return res
+
+
     _columns = {
 
             'name': fields.char('Name', size=128, required=True),
@@ -147,6 +168,7 @@ class site(osv.osv):
             'code': fields.char('Code', size=32),
             'type': fields.many2one('openstc.site.type', 'Type', required=True),
             'service_ids':fields.many2many('openstc.service', 'openstc_site_services_rel', 'site_id', 'service_id', 'Services'),
+            'service_names' : fields.function(_get_services, method=True,type='many2one', store=False),
             'site_parent_id': fields.many2one('openstc.site', 'Site parent', help='Site parent', ondelete='set null'),
             'lenght': fields.integer('Lenght'),
             'width': fields.integer('Width'),
