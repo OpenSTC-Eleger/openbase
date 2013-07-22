@@ -261,7 +261,7 @@ class users(osv.osv):
             # All departments under this user management:
             departments_ids = self.pool.get('openstc.service').search(cr, uid,[('manager_id','=',target_user_id),])
 
-            sql = "select id from openstc_team where id in ( select team_id from openstc_team_services_rel where service_id in (%s));" % (departments_ids)
+            sql = "select id from openstc_team where id in ( select team_id from openstc_team_services_rel where service_id in (%s));" % (str(departments_ids).strip('[]'))
 
             teams_services_ids = cr.execute(sql).fetchall
             teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user_id),('id','not in',teams_services_ids)])
