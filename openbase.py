@@ -41,7 +41,7 @@ class service(osv.osv):
             'technical': fields.boolean('Technical service'),
             'manager_id': fields.many2one('res.users', 'Manager'),
             'user_ids': fields.one2many('res.users', 'service_id', "Users"),
-            'teams': fields.many2many('openstc.teams', 'openstc_team_services_rel', 'service_id','team_id','Teams')
+            'team_ids': fields.many2many('openstc.teams', 'openstc_team_services_rel', 'service_id','team_id','Teams')
     }
 service()
 
@@ -255,18 +255,15 @@ class users(osv.osv):
         if target_user.isDST:
             teams_ids = teams_collection.search(cr,uid,[])
             teams = teams_collection.read(cr, uid, teams_ids, ['id','name','manager_id','members'])
-            result = map(formater, teams)
+
         elif target_user.isManager:
             departments_ids = self.pool.get('openstc.service').search(cr, uid,[('manager_id','=',target_user_id),])
-            sql = "select id from openstc_team where id in ( select team_id from openstc_team_services_rel where service_id in (%s));" %(str(departments_ids).strip('[]'))
-            cr.execute(sql)
-            teams_services_ids = cr.fetchall()
-            teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user_id),('id','not in',teams_services_ids)])
-            teams = teams_collection.read(cr,uid,teams_ids + teams_services_ids,['id','name','manager_id','members'])
-            result = map(formater,teams)
+            teams_ids = teams_collection.search(cr,uid,[('team_ids','in',departments_ids),'|',('manager_id','=',target_user.id)])
+            teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
+
         else:
-            result = []
-        return result
+            teams = []
+        return map(formater,teams)
 
     def get_managable_officers(self, cr, uid, target_user_id, context=None):
         """
