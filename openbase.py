@@ -288,15 +288,15 @@ class users(osv.osv):
         target_user = self.browse(cr, uid, target_user_id, context=context)
         if target_user.isDST:
             officers_ids = self.search(cr, uid, [('id','!=','1')],context=context)
-            officers = self.read(cr,uid,officers_ids, ['name','firstname','teams'])
+            officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
             result = map(formater,officers)
         elif target_user.isManager:
             officers_ids = self.search(cr,uid,[('service_ids','in',target_user.service_ids)])
-            officers = self.read(cr,uid,officers_ids,['name','firstname','teams'])
+            officers = self.read(cr,uid,officers_ids,['name','firstname','team_ids'])
             result = map(formater,officers)
         else:
             officers_ids = self.search(cr,uid,[('team_ids','in', map((lambda t: t.id),target_user.manage_teams))])
-            officers = self.read(cr,uid,officers_ids,['name','firstname','teams'])
+            officers = self.read(cr,uid,officers_ids,['name','firstname','team_ids'])
 
     def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
         res = {}
