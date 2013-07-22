@@ -259,26 +259,45 @@ class users(osv.osv):
         elif target_user.isManager:
             departments_ids = self.pool.get('openstc.service').search(cr, uid,[('manager_id','=',target_user_id),])
             sql = "select id from openstc_team where id in ( select team_id from openstc_team_services_rel where service_id in (%s));" %(str(departments_ids).strip('[]'))
-
-            teams_services_ids_query = cr.execute(sql)
+            cr.execute(sql)
             teams_services_ids = cr.fetchall()
             teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user_id),('id','not in',teams_services_ids)])
             teams = teams_collection.read(cr,uid,teams_ids + teams_services_ids,['id','name','manager_id','members'])
             result = map(formater,teams)
         else:
-            # It should manage nothing ?
             result = []
         return result
 
+    def get_managable_officers(self, cr, uid, target_user_id, context=None):
+        """
+        Returns the user list available for task assignations
 
-        # formater = lambda u: { 'id' : u['id'],
-        #                      'name' : u['name'],
-        #                      'firstname' : u['firstname'],
-        #                      'complete_name' : "{0}['firstname'] {0}['name']".format(u).strip(),
-        #                      'teams': u['team_ids']}
+        :rtype : List
+        :param cr: database cursor
+        :param uid: current user id
+        :param target_user_id: target user id
+        :param context: current user context
+        """
 
+        formater = lambda officer: { 'id': officer['id'],
+                                     'name' : officer['name'],
+                                     'firstname' : officer['firstname'],
+                                     'complete_name' : ("%s %s" % (officer['firstname'], officer['name'])).strip(),
+                                     'teams': officer['team_ids']}
 
-    #Get lists officers/teams where user is the referent on
+        target_user = self.browse(cr, uid, target_user_id, context=context)
+        if target_user.isDST:
+            officers_ids = self.search(cr, uid, [('id','!=','1')],context=context)
+            officers = self.read(cr,uid,officers_ids, ['name','firstname','teams'])
+            result = map(formater,officers)
+        elif target_user.isManager:
+            officers_ids = self.search(cr,uid,[('service_ids','in',target_user.service_ids)])
+            officers = self.read(cr,uid,officers_ids,['name','firstname','teams'])
+            result = map(formater,officers)
+        else:
+            officers_ids = self.search(cr,uid,[('team_ids','in', map((lambda t: t.id),target_user.manage_teams))])
+            officers = self.read(cr,uid,officers_ids,['name','firstname','teams'])
+
     def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
         res = {}
         user_obj = self.pool.get('res.users')
