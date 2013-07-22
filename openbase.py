@@ -263,7 +263,7 @@ class users(osv.osv):
             teams_services_ids_query = cr.execute(sql)
             teams_services_ids = cr.fetchall()
             teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user_id),('id','not in',teams_services_ids)])
-            teams = teams_collection.read(cr,uid,team_ids + teams_services_ids,['id','name','manager_id','members'])
+            teams = teams_collection.read(cr,uid,teams_ids + teams_services_ids,['id','name','manager_id','members'])
             result = map(formater,teams)
         else:
             # It should manage nothing ?
