@@ -261,7 +261,7 @@ class users(osv.osv):
             sql = "select id from openstc_team where id in ( select team_id from openstc_team_services_rel where service_id in (%s));" %(str(departments_ids).strip('[]'))
 
             teams_services_ids_query = cr.execute(sql)
-            teams_services_ids = cr.fetchall
+            teams_services_ids = cr.fetchall()
             teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user_id),('id','not in',teams_services_ids)])
             teams = teams_collection.read(cr,uid,team_ids + teams_services_ids,['id','name','manager_id','members'])
             result = map(formater,teams)
