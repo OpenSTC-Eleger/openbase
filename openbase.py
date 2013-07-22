@@ -234,6 +234,48 @@ class users(osv.osv):
             #Calculates the agents can be added to the team
 
 
+    def get_managable_teams(self,cr,uid,target_user_id, context=None):
+
+        """
+        :rtype : List
+        :param cr: database cursor
+        :param uid: current_connected_user
+        :param target_user_id: the target user
+        :param context:
+        :return: List of teams
+        """
+        target_user = self.browse(cr, uid, target_user_id, context=context)
+        teams_collection = self.pool.get('openstc.team')
+        formater = lambda team: { 'id'   : team['id'] ,
+                               'name' : team['name'],
+                               'manager_id' : team['manager_id'],
+                               'members' :  teams_collection._get_members(cr, uid, [team['id']],None,None,context),
+                               }
+
+
+        # formater = lambda u: { 'id' : u['id'],
+        #                      'name' : u['name'],
+        #                      'firstname' : u['firstname'],
+        #                      'complete_name' : "{0}['firstname'] {0}['name']".format(u).strip(),
+        #                      'teams': u['team_ids']}
+        if target_user.isDST:
+            # It should manage all teams ?
+            teams_ids = teams_collection.search(cr,uid,[])
+            teams = teams_collection.read(cr, uid, teams_ids, ['id','name','manager_id','members'])
+            result = map(formater, teams)
+        elif target_user.isManager:
+            # It should manage it's team and teams with service upon it get rights
+            # All departments under this user management:
+            departments_ids = self.pool.get('openstc.service').search(cr, uid,['manager_id','=',target_user_id])
+            sql = "select id, name, manager_id from openstc_team where id in ( select team_id from openstc_team_services_rel where service_id in (%s));" % (departments_ids)
+            teams = cr.execute(sql).fetchall
+            result = map(formater,teams)
+        else:
+            # It should manage nothing ?
+            result = ()
+        return result
+
+
     #Get lists officers/teams where user is the referent on
     def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
         res = {}
