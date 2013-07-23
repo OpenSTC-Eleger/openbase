@@ -287,7 +287,7 @@ class users(osv.osv):
             search_criterion = [('id','!=','1')]
 
         elif target_user.isManager:
-            search_criterion = [('service_ids.id','in',map(lambda s: s.id,target_user.service_ids))]
+            search_criterion = [('service_ids.id','in',target_user.service_id.id)]
 
         else:
             search_criterion= [('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams))]
