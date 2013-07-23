@@ -42,6 +42,7 @@ class service(osv.osv):
             'technical': fields.boolean('Technical service'),
             'manager_id': fields.many2one('res.users', 'Manager'),
             'user_ids': fields.one2many('res.users', 'service_id', "Users"),
+            'team_ids': fields.many2many('openstc.teams', 'openstc_team_services_rel', 'service_id','team_id','Teams')
     }
 service()
 
@@ -235,6 +236,72 @@ class users(osv.osv):
             #Calculates the agents can be added to the team
 
 
+    def get_managable_teams(self,cr,uid,target_user_id, context=None):
+        """
+        :rtype : List
+        :param cr: database cursor
+        :param uid: current_connected_user
+        :param target_user_id: the target user
+        :param context:
+        :return: List of teams
+        """
+        target_user = self.browse(cr, uid, target_user_id, context=context)
+        teams_collection = self.pool.get('openstc.team')
+        formater = lambda team: {'id': team['id'] ,
+                               'name': team['name'],
+                               'manager_id': team['manager_id'],
+                               'members':  teams_collection._get_members(cr, uid, [team['id']],None,None,context)
+                               }
+
+        if target_user.isDST:
+            search_criterions = []
+
+        elif target_user.isManager:
+            search_criterions = [('service_ids.id','=',target_user.service_id.id)]
+
+        else:
+            search_criterions = [('manager_id','=',target_user.id)]
+
+        teams_ids = teams_collection.search(cr,uid,search_criterions)
+        teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
+        return map(formater,teams)
+
+    def get_managable_officers(self, cr, uid, target_user_id, context=None):
+        """
+        Returns the user list available for task assignations
+
+        :rtype : List
+        :param cr: database cursor
+        :param uid: current user id
+        :param target_user_id: target user id
+        :param context: current user context
+        """
+        formater = lambda officer: { 'id': officer['id'],
+                                     'name' : officer['name'],
+                                     'firstname' : officer['firstname'],
+                                     'complete_name' : ("%s %s" % (officer['firstname'], officer['name'])).strip(),
+                                     'teams': officer['team_ids']}
+
+        target_user = self.browse(cr, uid, target_user_id, context=context)
+        if target_user.isDST:
+            search_criterion = [('id','!=','1')]
+
+        elif target_user.isManager:
+            search_criterion = [('service_ids.id','in',map(lambda s: s.id,target_user.service_ids))]
+
+        else:
+            search_criterion= [('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams))]
+
+        officers_ids = self.search(cr, uid, search_criterion)
+        officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
+        return map(formater,officers)
+
+    def get_managable_teams_and_officers(self,cr,uid,target_user_id,context=None):
+        return {'teams' : self.get_managable_teams(cr,uid,target_user_id),
+                'officers': self.get_managable_officers(cr,uid,target_user_id)}
+
+
+    def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
     #Get lists officers/teams where user is the referent on
     def getTeamsAndOfficers(self, cr, uid, ids,context=None):
         res = {}
