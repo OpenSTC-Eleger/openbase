@@ -257,14 +257,13 @@ class users(osv.osv):
             teams = teams_collection.read(cr, uid, teams_ids, ['id','name','manager_id','members'])
 
         elif target_user.isManager:
-            departments_ids = self.pool.get('openstc.service').search(cr, uid,[('manager_id','=',target_user_id),])
-            manager_teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user.id)])
-            services_teams_ids = teams_collection.search(cr,uid,[('service_ids.id','in',departments_ids)])
-            teams_ids = list(set(manager_teams_ids) | set(services_teams_ids))
+            teams_ids = teams_collection.search(cr,uid,[('service_ids.id','=',target_user.service_id)])
             teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
 
         else:
-            teams = []
+            teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user.id)])
+            teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
+
         return map(formater,teams)
 
     def get_managable_officers(self, cr, uid, target_user_id, context=None):
