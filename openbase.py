@@ -257,7 +257,7 @@ class users(osv.osv):
             teams = teams_collection.read(cr, uid, teams_ids, ['id','name','manager_id','members'])
 
         elif target_user.isManager:
-            teams_ids = teams_collection.search(cr,uid,[('service_ids.id','=',target_user.service_id)])
+            teams_ids = teams_collection.search(cr,uid,[('service_ids.id','=',target_user.service_id.id)])
             teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
 
         else:
