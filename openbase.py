@@ -292,7 +292,8 @@ class users(osv.osv):
         else:
             search_criterion= [('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams))]
 
-        officers_ids = self.search(cr, uid, search_criterion)
+        not_dst = [('groups_id.code','!=','DIRE')]
+        officers_ids = self.search(cr, uid, search_criterion + not_dst )
         officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
         return map(formater,officers)
 
