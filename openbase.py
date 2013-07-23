@@ -236,7 +236,7 @@ class users(osv.osv):
             #Calculates the agents can be added to the team
 
 
-    def get_managable_teams(self,cr,uid,target_user_id, context=None):
+    def get_manageable_teams(self,cr,uid,target_user_id, context=None):
         """
         :rtype : List
         :param cr: database cursor
@@ -266,7 +266,7 @@ class users(osv.osv):
         teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
         return map(formater,teams)
 
-    def get_managable_officers(self, cr, uid, target_user_id, context=None):
+    def get_manageable_officers(self, cr, uid, target_user_id, context=None):
         """
         Returns the user list available for task assignations
 
@@ -297,9 +297,9 @@ class users(osv.osv):
         officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
         return map(formater,officers)
 
-    def get_managable_teams_and_officers(self,cr,uid,target_user_id,context=None):
-        return {'teams' : self.get_managable_teams(cr,uid,target_user_id),
-                'officers': self.get_managable_officers(cr,uid,target_user_id)}
+    def get_manageable_teams_and_officers(self,cr,uid,target_user_id,context=None):
+        return {'teams' : self.get_manageable_teams(cr,uid,target_user_id),
+                'officers': self.get_manageable_officers(cr,uid,target_user_id)}
 
 
     #Get lists officers/teams where user is the referent on
