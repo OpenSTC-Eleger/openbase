@@ -22,6 +22,7 @@
 #
 #############################################################################
 
+from osv.orm import browse_record, browse_null
 from osv import osv, fields
 
 #----------------------------------------------------------
@@ -235,7 +236,7 @@ class users(osv.osv):
 
 
     #Get lists officers/teams where user is the referent on
-    def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
+    def getTeamsAndOfficers(self, cr, uid, ids,context=None):
         res = {}
         user_obj = self.pool.get('res.users')
         team_obj = self.pool.get('openstc.team')
