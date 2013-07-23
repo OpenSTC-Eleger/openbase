@@ -253,17 +253,16 @@ class users(osv.osv):
                                }
 
         if target_user.isDST:
-            teams_ids = teams_collection.search(cr,uid,[])
-            teams = teams_collection.read(cr, uid, teams_ids, ['id','name','manager_id','members'])
+            search_criterions = []
 
         elif target_user.isManager:
-            teams_ids = teams_collection.search(cr,uid,[('service_ids.id','=',target_user.service_id.id)])
-            teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
+            search_criterions = [('service_ids.id','=',target_user.service_id.id)]
 
         else:
-            teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user.id)])
-            teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
+            search_criterions = [('manager_id','=',target_user.id)]
 
+        teams_ids = teams_collection.search(cr,uid,search_criterions)
+        teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
         return map(formater,teams)
 
     def get_managable_officers(self, cr, uid, target_user_id, context=None):
@@ -284,18 +283,22 @@ class users(osv.osv):
 
         target_user = self.browse(cr, uid, target_user_id, context=context)
         if target_user.isDST:
-            officers_ids = self.search(cr, uid, [('id','!=','1')],context=context)
-            officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
+            search_criterion = [('id','!=','1')]
 
         elif target_user.isManager:
-            officers_ids = self.search(cr,uid,[('service_ids.id','in',map(lambda s: s.id,target_user.service_ids))])
-            officers = self.read(cr,uid,officers_ids,['name','firstname','team_ids'])
+            search_criterion = [('service_ids.id','in',map(lambda s: s.id,target_user.service_ids))]
 
         else:
-            officers_ids = self.search(cr,uid,[('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams))])
-            officers = self.read(cr,uid,officers_ids,['name','firstname','team_ids'])
+            search_criterion= [('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams))]
 
+        officers_ids = self.search(cr, uid, search_criterion)
+        officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
         return map(formater,officers)
+
+    def get_managable_teams_and_officers(self,cr,uid,target_user_id,context=None):
+        return {'teams' : self.get_managable_teams(cr,uid,target_user_id),
+                'officers': self.get_managable_officers(cr,uid,target_user_id)}
+
 
     def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
         res = {}
