@@ -301,7 +301,6 @@ class users(osv.osv):
                 'officers': self.get_managable_officers(cr,uid,target_user_id)}
 
 
-    def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
     #Get lists officers/teams where user is the referent on
     def getTeamsAndOfficers(self, cr, uid, ids,context=None):
         res = {}
