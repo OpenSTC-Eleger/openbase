@@ -102,7 +102,7 @@
 	        <field name="domain_force">[(1,"=",1)]
 	        </field>
 		 </record>
-
+		 
  	<record id="openstc_prets_partner_type_asso" model="openstc.partner.type">
 	    <field name="name">Association</field>
 	    <field name="code">ASSOCIATION</field>
@@ -111,7 +111,9 @@
 	</data>
 	
 	<data>
-	    		 
+   		 <record model="res.groups" id="hotel.group_hotel_manager">
+		     <field name="implied_ids" eval="[(4,ref('hotel.group_hotel_user'))]"/>
+		 </record>
 		 <!-- Groupe Factice pour cacher les menus aux utilisateurs (sauf l'admin) -->
 		<record id="group_view_all_menus" model="res.groups">
 			<field name="name">Voir tous les menus</field>
