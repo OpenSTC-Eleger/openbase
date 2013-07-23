@@ -258,7 +258,9 @@ class users(osv.osv):
 
         elif target_user.isManager:
             departments_ids = self.pool.get('openstc.service').search(cr, uid,[('manager_id','=',target_user_id),])
-            teams_ids = teams_collection.search(cr,uid,[('service_ids.id','in',departments_ids),'|',('manager_id','=',target_user.id)])
+            manager_teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user.id)])
+            services_teams_ids = teams_collection.search(cr,uid,[('service_ids.id','in',departments_ids)])
+            teams_ids = list(set(manager_teams_ids) | (services_teams_ids))
             teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
 
         else:
@@ -275,7 +277,6 @@ class users(osv.osv):
         :param target_user_id: target user id
         :param context: current user context
         """
-
         formater = lambda officer: { 'id': officer['id'],
                                      'name' : officer['name'],
                                      'firstname' : officer['firstname'],
