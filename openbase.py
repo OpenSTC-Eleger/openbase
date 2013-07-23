@@ -288,7 +288,7 @@ class users(osv.osv):
             officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
 
         elif target_user.isManager:
-            officers_ids = self.search(cr,uid,[('service_ids.id','in',target_user.service_ids)])
+            officers_ids = self.search(cr,uid,[('service_ids.id','in',map(lambda s: s.id,target_user.service_ids))])
             officers = self.read(cr,uid,officers_ids,['name','firstname','team_ids'])
 
         else:
