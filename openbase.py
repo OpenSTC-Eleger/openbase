@@ -260,7 +260,7 @@ class users(osv.osv):
             departments_ids = self.pool.get('openstc.service').search(cr, uid,[('manager_id','=',target_user_id),])
             manager_teams_ids = teams_collection.search(cr,uid,[('manager_id','=',target_user.id)])
             services_teams_ids = teams_collection.search(cr,uid,[('service_ids.id','in',departments_ids)])
-            teams_ids = list(set(manager_teams_ids) | (services_teams_ids))
+            teams_ids = list(set(manager_teams_ids) | set(services_teams_ids))
             teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
 
         else:
