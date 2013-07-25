@@ -22,6 +22,7 @@
 #
 #############################################################################
 
+from osv.orm import browse_record, browse_null
 from osv import osv, fields
 
 #----------------------------------------------------------
@@ -41,6 +42,7 @@ class service(osv.osv):
             'technical': fields.boolean('Technical service'),
             'manager_id': fields.many2one('res.users', 'Manager'),
             'user_ids': fields.one2many('res.users', 'service_id', "Users"),
+            'team_ids': fields.many2many('openstc.teams', 'openstc_team_services_rel', 'service_id','team_id','Teams')
     }
 service()
 
@@ -61,30 +63,30 @@ class openstc_partner_type(osv.osv):
             'claimers': fields.one2many('res.partner', 'type_id', "Claimers"),
     }
 openstc_partner_type()
- 
+
 class openstc_partner_activity(osv.osv):
     _name = "openstc.partner.activity"
-    
+
     def _name_get_func(self, cr, uid, ids, name, args, context=None):
         ret = {}
         for item in self.name_get(cr, uid, ids, context=context):
             ret[item[0]]=item[1]
         return ret
-        
-    
+
+
     _columns = {
         'name':fields.char('Activity name',size=128, required=True),
         'parent_activity_id':fields.many2one('openstc.partner.activity','Parent Activity'),
         'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True),
         }
-    
+
     def recursive_name_get(self, cr, uid, record, context=None):
         name = record.name
         if record.parent_activity_id:
             name = self.recursive_name_get(cr, uid, record.parent_activity_id, context=context) + ' / ' + name
             return name
         return name
-    
+
     def name_get(self, cr, uid, ids, context=None):
         ret = []
         for activity in self.browse(cr, uid, ids, context=None):
@@ -92,26 +94,26 @@ class openstc_partner_activity(osv.osv):
             name = self.recursive_name_get(cr, uid, activity, context=context)
             ret.append((activity.id,name))
         return ret
-    
+
     def name_search(self, cr, uid, name='', args=[], operator='ilike', context={}, limit=80):
         if name:
             args.extend([('name',operator,name)])
         ids = self.search(cr, uid, args, limit=limit, context=context)
         return self.name_get(cr, uid, ids, context=context)
-    
+
 openstc_partner_activity()
 
- 
+
 class res_partner(osv.osv):
      _inherit = "res.partner"
 
      _columns = {
         'activity_ids':fields.many2many('openstc.partner.activity','openstc_partner_activity_rel','partner_id','activity_id', 'Supplier Activities'),
         'type_id': fields.many2one('openstc.partner.type', 'Type'),
- 
+
  }
 res_partner()
- 
+
 class groups(osv.osv):
     _name = "res.groups"
     _description = "Access Groups"
@@ -234,8 +236,74 @@ class users(osv.osv):
             #Calculates the agents can be added to the team
 
 
-#Get lists officers/teams where user is the referent on
-    def getTeamsAndOfficers(self, cr, uid, ids, data, context=None):
+    def get_manageable_teams(self,cr,uid,target_user_id, context=None):
+        """
+        :rtype : List
+        :param cr: database cursor
+        :param uid: current_connected_user
+        :param target_user_id: the target user
+        :param context:
+        :return: List of teams
+        """
+        target_user = self.browse(cr, uid, target_user_id, context=context)
+        teams_collection = self.pool.get('openstc.team')
+        formater = lambda team: {'id': team['id'] ,
+                               'name': team['name'],
+                               'manager_id': team['manager_id'],
+                               'members':  teams_collection._get_members(cr, uid, [team['id']],None,None,context)
+                               }
+
+        if target_user.isDST:
+            search_criterions = []
+
+        elif target_user.isManager:
+            search_criterions = [('service_ids.id','=',target_user.service_id.id)]
+
+        else:
+            search_criterions = [('manager_id','=',target_user.id)]
+
+        teams_ids = teams_collection.search(cr,uid,search_criterions)
+        teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
+        return map(formater,teams)
+
+    def get_manageable_officers(self, cr, uid, target_user_id, context=None):
+        """
+        Returns the user list available for task assignations
+
+        :rtype : List
+        :param cr: database cursor
+        :param uid: current user id
+        :param target_user_id: target user id
+        :param context: current user context
+        """
+        formater = lambda officer: { 'id': officer['id'],
+                                     'name' : officer['name'],
+                                     'firstname' : officer['firstname'],
+                                     'complete_name' : ("%s %s" % (officer['firstname'], officer['name'])).strip(),
+                                     'teams': officer['team_ids']}
+
+        target_user = self.browse(cr, uid, target_user_id, context=context)
+        if target_user.isDST:
+            search_criterion = [('id','!=','1')]
+
+        elif target_user.isManager:
+            search_criterion = [('service_ids.id','=',target_user.service_id.id)]
+
+        else:
+            search_criterion= [('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams))]
+
+        not_dst = [('groups_id.code','!=','DIRE')]
+        officers_ids = self.search(cr, uid, search_criterion + not_dst )
+        officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
+        return map(formater,officers)
+
+    def get_manageable_teams_and_officers(self,cr,uid,target_user_id,context=None):
+        return {'teams' : self.get_manageable_teams(cr,uid,target_user_id),
+                'officers': self.get_manageable_officers(cr,uid,target_user_id)}
+
+
+    #Get lists officers/teams where user is the referent on
+    def getTeamsAndOfficers(self, cr, uid, ids,context=None):
         res = {}
         user_obj = self.pool.get('res.users')
         team_obj = self.pool.get('openstc.team')
@@ -262,11 +330,12 @@ class users(osv.osv):
         #If users connected is the DST get all teams and all officers
         if user.isDST:
             #Serialize each officer with name and firstname
-            for officer in user_obj.read(cr, uid, all_officer_ids, ['id','name','firstname']):
+            for officer in user_obj.read(cr, uid, all_officer_ids, ['id','name','firstname','team_ids']):
                 newOfficer = { 'id'  : officer['id'],
                                'name' : officer['name'],
                                'firstname' : officer['firstname'],
-                               'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or '')
+                               'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or ''),
+                               'teams': officer['team_ids']
                             }
                 officers.append(newOfficer)
             res['officers'] =  officers
@@ -276,7 +345,7 @@ class users(osv.osv):
                 newTeam = { 'id'   : team['id'] ,
                             'name' : team['name'],
                             'manager_id' : team['manager_id'],
-                            'members' :  team_obj._get_members(cr, uid, [team['id']],None,None,context)
+                            'members' :  team_obj._get_members(cr, uid, [team['id']],None,None,context),
                             }
                 teams.append(newTeam)
             res['teams'] = teams
@@ -292,7 +361,8 @@ class users(osv.osv):
                             newOfficer = { 'id'  : officer.id,
                                           'name' : officer.name,
                                           'firstname' : officer.firstname,
-                                          'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or '')
+                                          'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or ''),
+                                          'teams': officer.team_ids
                                           }
                             officers.append(newOfficer)
                 res['officers'] = officers
@@ -323,7 +393,8 @@ class users(osv.osv):
                                 newOfficer = { 'id'  : officer.id,
                                               'name' : officer.name,
                                               'firstname' : officer.firstname,
-                                              'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or '')
+                                              'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or ''),
+                                              'teams': officer.team_ids
                                           }
                                 officers.append(newOfficer)
                                 break
@@ -397,5 +468,5 @@ class team(osv.osv):
         return team_users
 
 team()
- 
+
 
