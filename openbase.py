@@ -352,32 +352,30 @@ class users(osv.osv):
         #If user connected is Manager get all teams and all officers where he is the referent
         elif user.isManager :
             #For each services authorized for user
-            for service_id in user.service_ids :
-                #For each officer
-                for officer in all_officers:
-                    if not officer.isDST :
-                        #Check if officer's services list is in user's services list
-                        if (service_id in officer.service_ids) and (officer.id not in officers):
-                            newOfficer = { 'id'  : officer.id,
-                                          'name' : officer.name,
-                                          'firstname' : officer.firstname,
-                                          'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or ''),
-                                          'teams': officer.team_ids
-                                          }
-                            officers.append(newOfficer)
-                res['officers'] = officers
-                for team in all_teams:
-                    if (service_id in team.service_ids) and (team.id not in teams):
-                        manager_id = False
-                        if isinstance(team.manager_id, browse_null)!= True :
-                            manager_id = team.manager_id.id
-                        newTeam = { 'id'   : team.id ,
-                            'name' : team.name,
-                            'manager_id' : manager_id,
-                            'members' : team_obj._get_members(cr, uid, [team.id],None,None,context)
-                            }
-                        teams.append(newTeam)
-                res['teams'] = teams
+            for officer in user_obj.read(cr, uid, all_officer_ids, ['id','name','firstname','team_ids','isDST','service_ids']):
+                if not officer['isDST'] :
+                    #Check if officer's services list is in user's services list
+                    if (user.service_id.id in officer['service_ids']) and (officer['id'] not in officers):
+                        newOfficer = { 'id'  : officer['id'],
+                                      'name' : officer['name'],
+                                      'firstname' : officer['firstname'],
+                                      'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or ''),
+                                      'teams': officer['team_ids']
+                                      }
+                        officers.append(newOfficer)
+            res['officers'] = officers
+            for team in all_teams:
+                if (user.service_id in team.service_ids) and (team.id not in teams):
+                    manager_id = False
+                    if isinstance(team.manager_id, browse_null)!= True :
+                        manager_id = team.manager_id.id
+                    newTeam = { 'id'   : team.id ,
+                        'name' : team.name,
+                        'manager_id' : manager_id,
+                        'members' : team_obj._get_members(cr, uid, [team.id],None,None,context)
+                        }
+                    teams.append(newTeam)
+            res['teams'] = teams
         #If user connected is an officer
         else:
             #Get all teams where officer is manager on it
