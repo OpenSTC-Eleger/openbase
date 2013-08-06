@@ -24,7 +24,8 @@
 
 from osv.orm import browse_record, browse_null
 from osv import osv, fields
-
+import re
+import unicodedata
 #----------------------------------------------------------
 # Services
 #----------------------------------------------------------
@@ -162,8 +163,48 @@ class users(osv.osv):
             group_ids = group_obj.search(cr, uid, [('code','=', arg),('id','in',user['groups_id'])])
             res[id] = True if len( group_ids ) != 0 else False
          return res
-
-
+     
+    def get_menu_formatted(self, cr, uid, context=None):
+        def parseToUrl(val):
+            regexp_remove = re.compile("[\-:]+")
+            regexp_dot = re.compile(" ")
+            if not isinstance(val,(str, unicode)):
+                return val
+            uval = val
+            if not isinstance(uval, unicode):
+                uval = val.decode('utf-8')
+            ret = []
+            items = regexp_remove.sub('', uval)
+            items = regexp_dot.split(items)
+            for item in items:
+                ret.append(''.join([x for x in unicodedata.normalize('NFKD',item) if unicodedata.category(x)[0] in ('L','N')]))
+            ret = '-'.join(ret)
+            return ret.lower()
+        
+        def get_menu_hierarchy(item,menu_dict):
+            ret = []
+            for child_id in item['child_id']:
+                child = menu_dict.get(child_id)
+                child.update({'tag':parseToUrl(child['name'])})
+                child.update({'children':get_menu_hierarchy(child,menu_dict)})
+                ret.append(child)
+            return ret
+        
+        menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context)
+        menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context)
+        menu = sorted(menu, key=lambda item: item['parent_id'])
+        menu_dict = {}
+        for item in menu:
+            item.update({'tag':parseToUrl(item['name'])})
+            menu_dict.update({item['id']:item})
+        final_menu = []
+        for item in menu:
+            if not item['parent_id']:
+                item.update({'children':get_menu_hierarchy(item, menu_dict)})
+                final_menu.append(item)
+        
+        #print final_menu
+        return final_menu
 
 
     _columns = {
