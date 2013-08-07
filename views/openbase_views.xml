@@ -163,7 +163,7 @@
 		                	</group>
 		                	<group colspan="2" col="2">
 		                    	<separator string="Properties" colspan="2"/>
-								<field name="lenght"/>
+								<field name="length"/>
 		                		<field name="width"/>
 		                		<field name="surface"/>
 		                	</group>
@@ -184,7 +184,7 @@
                		<field name="name"/>
                		<field name="type"/>
                		<field name="site_parent_id"/>
-               		<field name="lenght"/>
+               		<field name="length"/>
                		<field name="width"/>
                		<field name="surface"/>
                 </tree>

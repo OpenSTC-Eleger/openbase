@@ -157,6 +157,25 @@ class site(osv.osv):
         return dict(res)
 
 
+    _actions = {
+        'modify': lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code or 'MANA' in groups_code,
+        'create': lambda self,cr,uid, record, groups_code: 'DIRE' in groups_code or 'MANA' in groups_code,
+        'read': lambda self,cr,uid, record, groups_code: True,
+        'delete': lambda self,cr,uid, record, groups_code: 'DIRE' in groups_code,
+    }
+
+    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
+        #default value: empty string for each id
+        ret = {}.fromkeys(ids,'')
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
+
+        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        for record in self.browse(cr, uid, ids, context=context):
+            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
+            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
+        return ret
+    
     _columns = {
 
             'name': fields.char('Name', size=128, required=True),
@@ -166,11 +185,13 @@ class site(osv.osv):
             'service_ids':fields.many2many('openstc.service', 'openstc_site_services_rel', 'site_id', 'service_id', 'Services'),
             'service_names' : fields.function(_get_services, method=True,type='many2one', store=False),
             'site_parent_id': fields.many2one('openstc.site', 'Site parent', help='Site parent', ondelete='set null'),
-            'lenght': fields.integer('Lenght'),
+            'length': fields.integer('Lenght'),
             'width': fields.integer('Width'),
             'surface': fields.integer('Surface'),
             'long': fields.float('Longitude'),
             'lat': fields.float('Latitude'),
+            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
+
     }
 
 site()
