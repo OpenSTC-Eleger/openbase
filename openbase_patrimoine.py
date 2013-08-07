@@ -160,7 +160,6 @@ class site(osv.osv):
     _actions = {
         'modify': lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code or 'MANA' in groups_code,
         'create': lambda self,cr,uid, record, groups_code: 'DIRE' in groups_code or 'MANA' in groups_code,
-        'read': lambda self,cr,uid, record, groups_code: True,
         'delete': lambda self,cr,uid, record, groups_code: 'DIRE' in groups_code,
     }
 
