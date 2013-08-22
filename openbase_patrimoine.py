@@ -163,6 +163,7 @@ class site(osv.osv):
         'delete': lambda self,cr,uid, record, groups_code: 'DIRE' in groups_code,
     }
 
+
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
         ret = {}.fromkeys(ids,'')
