@@ -67,7 +67,7 @@ class equipment(osv.osv):
 
     _columns = {
             'immat': fields.char('Imatt', size=128),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name'),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name',method=True, store={'openstc.equipment':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type'], 10]}),
             'product_product_id': fields.many2one('product.product', 'Product', help="", ondelete="cascade"),
             #Service authorized for use equipment
             'service_ids':fields.many2many('openstc.service', 'openstc_equipment_services_rel', 'equipment_id', 'service_id', 'Services'),
@@ -179,7 +179,7 @@ class site(osv.osv):
     _columns = {
 
             'name': fields.char('Name', size=128, required=True),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name'),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, store={'openstc.site':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type'], 10]}),
             'code': fields.char('Code', size=32),
             'type': fields.many2one('openstc.site.type', 'Type', required=True),
             'service_ids':fields.many2many('openstc.service', 'openstc_site_services_rel', 'site_id', 'service_id', 'Services'),

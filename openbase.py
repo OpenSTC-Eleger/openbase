@@ -79,7 +79,7 @@ class openstc_partner_activity(osv.osv):
     _columns = {
         'name':fields.char('Activity name',size=128, required=True),
         'parent_activity_id':fields.many2one('openstc.partner.activity','Parent Activity'),
-        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True),
+        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True, store={'openstc.partner.type':[lambda self,cr,uid,ids,ctx={}:ids, ['name','parent_id'],10]}),
         }
 
     def recursive_name_get(self, cr, uid, record, context=None):
@@ -210,7 +210,7 @@ class users(osv.osv):
     _columns = {
             'firstname': fields.char('firstname', size=128),
             'lastname': fields.char('lastname', size=128),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name'),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, store={'res.users':[lambda self,cr,uid,ids,ctx={}:ids, ['name','firstname'], 10]}),
             'service_id':fields.many2one('openstc.service', 'Service    '),
             'service_ids': fields.many2many('openstc.service', 'openstc_user_services_rel', 'user_id', 'service_id', 'Services'),
             'cost': fields.integer('Coût horaire'),
