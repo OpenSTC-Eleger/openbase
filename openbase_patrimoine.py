@@ -55,10 +55,12 @@ class equipment(osv.osv):
         reads = self.read(cr, uid, ids, ['name','type'], context=context)
         res = []
         for record in reads:
-            name = record['name']
-            if record['type']:
-                name =  name + ' / '+ record['type']
-            res.append((record['id'], name))
+            #hack to avoid bugs on equipments stored without product_product_id
+            if 'name' in record and record['name']:
+                name = record['name']
+                if record['type']:
+                    name =  name + ' / '+ record['type']
+                res.append((record['id'], name))
         return res
 
     def _name_get_fnc(self, cr, uid, ids, prop, unknow_none, context=None):
