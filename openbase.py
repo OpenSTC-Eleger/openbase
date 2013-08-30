@@ -190,11 +190,14 @@ class users(osv.osv):
                 ret.append(child)
             return ret
         
+        if not context or context is None:
+            context = self.pool.get("res.users").context_get(cr, uid, context=context)
         #get only STC menu, regarding ir.model.data
         menu_stc_ids = self.pool.get("ir.model.data").search(cr, uid, [('module','=','base',),('name','=','menu_main_pm')])
         menu_stc = self.pool.get("ir.model.data").read(cr, uid, menu_stc_ids, ['res_id'])
-        menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context)
-        menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context)
+        menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
+        #get the user context (because method is called without context, by default)
+        menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
         menu = sorted(menu, key=lambda item: item['parent_id'])
         menu_dict = {}
         for item in menu:
