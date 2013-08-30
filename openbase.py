@@ -190,6 +190,9 @@ class users(osv.osv):
                 ret.append(child)
             return ret
         
+        #get only STC menu, regarding ir.model.data
+        menu_stc_ids = self.pool.get("ir.model.data").search(cr, uid, [('module','=','base',),('name','=','menu_main_pm')])
+        menu_stc = self.pool.get("ir.model.data").read(cr, uid, menu_stc_ids, ['res_id'])
         menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context)
         menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context)
         menu = sorted(menu, key=lambda item: item['parent_id'])
@@ -200,8 +203,10 @@ class users(osv.osv):
         final_menu = []
         for item in menu:
             if not item['parent_id']:
-                item.update({'children':get_menu_hierarchy(item, menu_dict)})
-                final_menu.append(item)
+                #retrieve only STC menus
+                if menu_stc and item['id'] == menu_stc[0]['res_id']:
+                    item.update({'children':get_menu_hierarchy(item, menu_dict)})
+                    final_menu.append(item)
         
         #print final_menu
         return final_menu
