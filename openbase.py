@@ -101,7 +101,7 @@ class openstc_partner_activity(osv.osv):
     _columns = {
         'name':fields.char('Activity name',size=128, required=True),
         'parent_activity_id':fields.many2one('openstc.partner.activity','Parent Activity'),
-        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True, store={'openstc.partner.type':[lambda self,cr,uid,ids,ctx={}:ids, ['name','parent_id'],10]}),
+        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True, store={'openstc.partner.activity':[lambda self,cr,uid,ids,ctx={}:ids, ['name','parent_id'],10]}),
         }
 
     def recursive_name_get(self, cr, uid, record, context=None):
