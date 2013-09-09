@@ -73,8 +73,10 @@ class equipment(osv.osv):
             'product_product_id': fields.many2one('product.product', 'Product', help="", ondelete="cascade"),
             #Service authorized for use equipment
             'service_ids':fields.many2many('openstc.service', 'openstc_equipment_services_rel', 'equipment_id', 'service_id', 'Services'),
+            'internal_use':fields.boolean('Internal Use', help='Means that this equipment can be used in intervention, or be the target of intervention request.'),
             #Service owner
             'service':fields.many2one('openstc.service', 'Service'),
+            'maintenance_service_ids': fields.many2many('openstc.service','openstc_equipement_maintenance_services_rel','equipment_id','service_id', 'Maintenance services'),
 
             'marque': fields.char('Marque', size=128),
             'type': fields.char('Type', size=128),
@@ -96,14 +98,13 @@ class equipment(osv.osv):
             'length_amort':fields.integer('Durée d\'amortissement'),
             'purchase_price':fields.float('Prix d\'achat',digits=(6,2)),
 
-
             #Calcul total price and liters
             #'oil_qtity': fields.integer('oil quantity', select=1),
             #'oil_price': fields.integer('oil price', select=1),
     }
     _defaults = {
          'type_prod':'materiel',
-
+         'internal_use': False,
         }
 
 equipment()
