@@ -23,6 +23,44 @@
 
 from osv import osv, fields
 
+class product_category(osv.osv):
+    _inherit = "product.category"
+    _columns = {
+        'is_vehicle':fields.boolean('Is vehicle'),
+        'is_equipment': fields.boolean('Is equipment'),
+        }
+    _defaults = {
+        'is_vehicle':False,
+        'is_equipment': False,
+        }
+    
+    #get original parent to inherit to its data 'is_vehicle' and 'is_equipment'
+    def check_parent_vehicle_or_equipment(self, cr, uid, vals, context=None):
+        parent_id = vals.get('parent_id', False)
+        if parent_id:
+            parent = self.browse(cr, uid, parent_id, context=context)
+            iter_parent_id = parent_id
+            #get original parent by recursion
+            while parent.parent_id:
+                parent = parent.parent_id
+            vals['is_vehicle'] = parent.is_vehicle
+            vals['is_equipment'] = parent.is_equipment
+        else:
+            vals['is_vehicle'] = False
+            vals['is_equipment'] = False
+        return vals
+    
+    def create(self, cr, uid, vals, context=None):
+        vals2 = self.check_parent_vehicle_or_equipment(cr, uid, vals.copy(), context=context)
+        id = super(product_category, self).create(cr, uid, vals2, context=context)
+        return id
+    
+    def write(self, cr, uid, ids, vals, context=None):
+        vals2 = self.check_parent_vehicle_or_equipment(cr, uid, vals.copy(), context=context)
+        return super(product_category, self).write(cr, uid, ids, vals2, context=context)
+        
+product_category()
+
 class product_product(osv.osv):
     _name = "product.product"
     _inherit = "product.product"
