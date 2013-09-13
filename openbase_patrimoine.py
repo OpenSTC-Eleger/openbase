@@ -45,9 +45,7 @@ class product_category(osv.osv):
                 parent = parent.parent_id
             vals['is_vehicle'] = parent.is_vehicle
             vals['is_equipment'] = parent.is_equipment
-        else:
-            vals['is_vehicle'] = False
-            vals['is_equipment'] = False
+
         return vals
     
     def create(self, cr, uid, vals, context=None):
