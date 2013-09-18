@@ -24,7 +24,8 @@
 
 from osv.orm import browse_record, browse_null
 from osv import osv, fields
-
+import re
+import unicodedata
 #----------------------------------------------------------
 # Services
 #----------------------------------------------------------
@@ -57,10 +58,32 @@ class openstc_partner_type(osv.osv):
     _description = "openstc.partner.type"
     _rec_name = "name"
 
+
+    _actions = {
+        'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
+        'update': lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'create': lambda self,cr,uid,record,groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+
+    }
+
+    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
+        #default value: empty string for each id
+        ret = {}.fromkeys(ids,'')
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
+
+        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        for record in self.browse(cr, uid, ids, context=context):
+            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
+            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
+        return ret
+
     _columns = {
             'name': fields.char('Name', size=128, required=True),
             'code': fields.char('Code', size=32, required=True),
             'claimers': fields.one2many('res.partner', 'type_id', "Claimers"),
+            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
+
     }
 openstc_partner_type()
 
@@ -77,7 +100,7 @@ class openstc_partner_activity(osv.osv):
     _columns = {
         'name':fields.char('Activity name',size=128, required=True),
         'parent_activity_id':fields.many2one('openstc.partner.activity','Parent Activity'),
-        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True),
+        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True, store={'openstc.partner.activity':[lambda self,cr,uid,ids,ctx={}:ids, ['name','parent_id'],10]}),
         }
 
     def recursive_name_get(self, cr, uid, record, context=None):
@@ -161,14 +184,62 @@ class users(osv.osv):
             group_ids = group_obj.search(cr, uid, [('code','=', arg),('id','in',user['groups_id'])])
             res[id] = True if len( group_ids ) != 0 else False
          return res
-
-
+     
+    def get_menu_formatted(self, cr, uid, context=None):
+        def parseToUrl(val):
+            regexp_remove = re.compile("[\-:]+")
+            regexp_dot = re.compile(" ")
+            if not isinstance(val,(str, unicode)):
+                return val
+            uval = val
+            if not isinstance(uval, unicode):
+                uval = val.decode('utf-8')
+            ret = []
+            items = regexp_remove.sub('', uval)
+            items = regexp_dot.split(items)
+            for item in items:
+                ret.append(''.join([x for x in unicodedata.normalize('NFKD',item) if unicodedata.category(x)[0] in ('L','N')]))
+            ret = '-'.join(ret)
+            return ret.lower()
+        
+        def get_menu_hierarchy(item,menu_dict):
+            ret = []
+            for child_id in item['child_id']:
+                child = menu_dict.get(child_id)
+                child.update({'tag':parseToUrl(child['name'])})
+                child.update({'children':get_menu_hierarchy(child,menu_dict)})
+                ret.append(child)
+            return ret
+        
+        if not context or context is None:
+            context = self.pool.get("res.users").context_get(cr, uid, context=context)
+        #get only STC menu, regarding ir.model.data
+        menu_stc_ids = self.pool.get("ir.model.data").search(cr, uid, [('module','=','base',),('name','=','menu_main_pm')])
+        menu_stc = self.pool.get("ir.model.data").read(cr, uid, menu_stc_ids, ['res_id'])
+        menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
+        #get the user context (because method is called without context, by default)
+        menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
+        menu = sorted(menu, key=lambda item: item['parent_id'])
+        menu_dict = {}
+        for item in menu:
+            item.update({'tag':parseToUrl(item['name'])})
+            menu_dict.update({item['id']:item})
+        final_menu = []
+        for item in menu:
+            if not item['parent_id']:
+                #retrieve only STC menus
+                if menu_stc and item['id'] == menu_stc[0]['res_id']:
+                    item.update({'children':get_menu_hierarchy(item, menu_dict)})
+                    final_menu.append(item)
+        
+        #print final_menu
+        return final_menu
 
 
     _columns = {
             'firstname': fields.char('firstname', size=128),
             'lastname': fields.char('lastname', size=128),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name'),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, store={'res.users':[lambda self,cr,uid,ids,ctx={}:ids, ['name','firstname'], 10]}),
             'service_id':fields.many2one('openstc.service', 'Service    '),
             'service_ids': fields.many2many('openstc.service', 'openstc_user_services_rel', 'user_id', 'service_id', 'Services'),
             'cost': fields.integer('Coût horaire'),
@@ -352,32 +423,30 @@ class users(osv.osv):
         #If user connected is Manager get all teams and all officers where he is the referent
         elif user.isManager :
             #For each services authorized for user
-            for service_id in user.service_ids :
-                #For each officer
-                for officer in all_officers:
-                    if not officer.isDST :
-                        #Check if officer's services list is in user's services list
-                        if (service_id in officer.service_ids) and (officer.id not in officers):
-                            newOfficer = { 'id'  : officer.id,
-                                          'name' : officer.name,
-                                          'firstname' : officer.firstname,
-                                          'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or ''),
-                                          'teams': officer.team_ids
-                                          }
-                            officers.append(newOfficer)
-                res['officers'] = officers
-                for team in all_teams:
-                    if (service_id in team.service_ids) and (team.id not in teams):
-                        manager_id = False
-                        if isinstance(team.manager_id, browse_null)!= True :
-                            manager_id = team.manager_id.id
-                        newTeam = { 'id'   : team.id ,
-                            'name' : team.name,
-                            'manager_id' : manager_id,
-                            'members' : team_obj._get_members(cr, uid, [team.id],None,None,context)
-                            }
-                        teams.append(newTeam)
-                res['teams'] = teams
+            for officer in user_obj.read(cr, uid, all_officer_ids, ['id','name','firstname','team_ids','isDST','service_ids']):
+                if not officer['isDST'] :
+                    #Check if officer's services list is in user's services list
+                    if (user.service_id.id in officer['service_ids']) and (officer['id'] not in officers):
+                        newOfficer = { 'id'  : officer['id'],
+                                      'name' : officer['name'],
+                                      'firstname' : officer['firstname'],
+                                      'complete_name' : (officer['firstname'] or '')  + '  ' +  (officer['name'] or ''),
+                                      'teams': officer['team_ids']
+                                      }
+                        officers.append(newOfficer)
+            res['officers'] = officers
+            for team in all_teams:
+                if (user.service_id in team.service_ids) and (team.id not in teams):
+                    manager_id = False
+                    if isinstance(team.manager_id, browse_null)!= True :
+                        manager_id = team.manager_id.id
+                    newTeam = { 'id'   : team.id ,
+                        'name' : team.name,
+                        'manager_id' : manager_id,
+                        'members' : team_obj._get_members(cr, uid, [team.id],None,None,context)
+                        }
+                    teams.append(newTeam)
+            res['teams'] = teams
         #If user connected is an officer
         else:
             #Get all teams where officer is manager on it
@@ -441,13 +510,62 @@ class team(osv.osv):
 
         return res
 
+    _actions = {
+        'create':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'update':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
+        }
+    
+    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
+        #default value: empty string for each id
+        ret = {}.fromkeys(ids,'')
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
 
+        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        for record in self.browse(cr, uid, ids, context=context):
+            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
+            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
+        return ret
+    
+    _fields_names = {'service_names':'service_ids',
+                    'user_names':'user_ids'}
+
+    #@TODO: move this feature to template model (in another git branch)
+    def __init__(self, pool, cr):
+        #method to retrieve many2many fields with custom format
+        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
+            res = {}
+            if not isinstance(name, list):
+                name = [name]
+            for obj in self.browse(cr, uid, ids, context=context):
+                #for each field_names to read, retrieve their values
+                res[obj.id] = {}
+                for fname in name:
+                    #many2many browse_record field to map
+                    field_ids = obj[self._fields_names[fname]]
+                    val = []
+                    for item in field_ids:
+                        val.append([item.id,item.name_get()[0][1]])
+                    res[obj.id].update({fname:val})
+            return res
+        
+        ret = super(team, self).__init__(pool,cr)
+        #add _field_names to fields definition of the model
+        for f in self._fields_names.keys():
+            #force name of new field with '_names' suffix
+            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
+        return ret
+
+    
     _columns = {
             'name': fields.char('name', size=128),
             'manager_id': fields.many2one('res.users', 'Manager'),
             'service_ids': fields.many2many('openstc.service', 'openstc_team_services_rel', 'team_id', 'service_id', 'Services'),
             'user_ids': fields.many2many('res.users', 'openstc_team_users_rel', 'team_id', 'user_id', 'Users'),
             'free_user_ids' : fields.function(_get_free_users, method=True,type='many2one', store=False),
+            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
+    
     }
     #Calculates the agents can be added to the team
     def _get_members(self, cr, uid, ids, fields, arg, context):
