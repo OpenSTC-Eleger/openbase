@@ -88,14 +88,14 @@ class equipment(osv.osv):
     def name_get(self, cr, uid, ids, context=None):
         if not len(ids):
             return []
-        reads = self.read(cr, uid, ids, ['name','type'], context=context)
+        reads = self.read(cr, uid, ids, ['name','categ_id'], context=context)
         res = []
         for record in reads:
             #hack to avoid bugs on equipments stored without product_product_id
             if 'name' in record and record['name']:
                 name = record['name']
-                if record['type']:
-                    name =  name + ' / '+ record['type']
+                if record['categ_id']:
+                    name =  name + ' / '+ record['categ_id'][1]
                 res.append((record['id'], name))
         return res
 
@@ -136,7 +136,7 @@ class equipment(osv.osv):
 
     _columns = {
             'immat': fields.char('Imatt', size=128),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name',method=True, store={'openstc.equipment':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type'], 10]}),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name',method=True, store={'openstc.equipment':[lambda self,cr,uid,ids,ctx={}:ids, ['name','categ_id'], 10]}),
             'product_product_id': fields.many2one('product.product', 'Product', help="", ondelete="cascade"),
             #Service authorized for use equipment
             'service_ids':fields.many2many('openstc.service', 'openstc_equipment_services_rel', 'equipment_id', 'service_id', 'Services'),
