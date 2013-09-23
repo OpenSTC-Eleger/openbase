@@ -31,6 +31,10 @@ class openbaseCore(osv.Model):
     
     
     _actions_to_eval = {}
+    _fields_names_to_eval = {}
+    _actions = {}
+    _fields_names = {}
+    
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
         ret = {}.fromkeys(ids,'')
@@ -43,29 +47,57 @@ class openbaseCore(osv.Model):
         'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
         }
     def __init__(self, cr, pool):
-        
         self._columns.update(self._columns_to_add)
-        self._actions_to_eval.setdefault(self._name,{'':lambda self,cr,uid,record: False})
+        self._actions_to_eval.setdefault(self._name,{})
+        self._fields_names_to_eval.setdefault(self._name,{})
+        
         self._actions_to_eval[self._name].update(self._actions)
+        self._fields_names_to_eval[self._name].update(self._fields_names)
+        #method to retrieve many2many fields with custom format
+        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
+            res = {}
+            if not isinstance(name, list):
+                name = [name]
+            for obj in self.browse(cr, uid, ids, context=context):
+                #for each field_names to read, retrieve their values
+                res[obj.id] = {}
+                for fname in name:
+                    #many2many browse_record field to map
+                    field_ids = obj[self._fields_names_to_eval[self._name][fname]]
+                    val = []
+                    for item in field_ids:
+                        val.append([item.id,item.name_get()[0][1]])
+                    res[obj.id].update({fname:val})
+            return res
+        
         super(openbaseCore,self).__init__(cr,pool)
+         #add _field_names to fields definition of the model
+        for f in self._fields_names.keys():
+            #force name of new field with '_names' suffix
+            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
+
 
 class opentest(openbaseCore):
     _name= "openbase.test"
     _columns = {
         'name':fields.char('Name',size=128),
         }
-    
     _actions = {
-        'print':lambda self,cr,uid,record: record.name <> 'test'
+        'print':lambda self,cr,uid,record: record.name <> 'test',
+        'read':lambda self,cr,uid,record:record.name <> 'test'
         }
+opentest()
 
 class opentest2(openbaseCore):
+    
     _name = "openbase.test2"
     _columns = {
         'name':fields.char('Name2',size=128),
         'state':fields.selection([('draft','Draft'),('done','Done')], string="State"),
+        'test_ids':fields.many2many('openbase.test','openbase_test2_test_rel','test_id2','test_id','Tests')
         }
-
+    
+    _fields_names = {'test_names':'test_ids'}
     _actions = {
         'delete':lambda self,cr,uid,record: record.state == 'draft',
         }
@@ -75,6 +107,7 @@ opentest2()
 class opentest_inherit(openbaseCore):
     _inherit = "openbase.test2"
     _actions = {
-        'create':lambda self,cr,uidd,record: record.state == 'done'
+        'create':lambda self,cr,uid,record: record.state == 'done',
+        'read':lambda self,cr,uid,record:True
         }
 opentest_inherit()
