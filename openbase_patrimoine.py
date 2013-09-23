@@ -138,7 +138,7 @@ class equipment(osv.osv):
             'immat': fields.char('Imatt', size=128),
             'complete_name': fields.function(_name_get_fnc, type="char", string='Name',method=True, store={'openstc.equipment':[lambda self,cr,uid,ids,ctx={}:ids, ['name','categ_id'], 10]}),
             'product_product_id': fields.many2one('product.product', 'Product', help="", ondelete="cascade"),
-            #Service authorized for use equipment
+            #Service authorized to use equipment
             'service_ids':fields.many2many('openstc.service', 'openstc_equipment_services_rel', 'equipment_id', 'service_id', 'Services'),
             'internal_use':fields.boolean('Internal Use', help='Means that this equipment can be used in intervention, or be the target of intervention request.'),
             #Service owner
@@ -156,7 +156,7 @@ class equipment(osv.osv):
             'fat_material': fields.boolean('Fat'),
 
             'cv': fields.integer('CV', select=1),
-            'year': fields.integer('Year', select=1),
+            'purchase_date':fields.date('Date of purchase'),
             'time': fields.integer('Time', select=1),
             'km': fields.integer('Km', select=1),
 
@@ -164,7 +164,10 @@ class equipment(osv.osv):
             'energy_type':fields.char('Type d\'énergie',size=128),
             'length_amort':fields.integer('Durée d\'amortissement'),
             'purchase_price':fields.float('Prix d\'achat',digits=(6,2)),
-
+            'hour_price':fields.float('Hour price', digits=(4,2)),
+            'built_date':fields.date('Built Date'),
+            'warranty_date':fields.date('End date of Warranty'),
+            #'year': fields.integer('Year', select=1),
             #Calcul total price and liters
             #'oil_qtity': fields.integer('oil quantity', select=1),
             #'oil_price': fields.integer('oil price', select=1),
