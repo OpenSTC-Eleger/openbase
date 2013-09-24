@@ -117,7 +117,7 @@
 	        <field name="is_equipment" eval="False"/>
 	    </record>
 	    <record model="product.category" id="openbase_product_categ_main_equipment">
-	        <field name="name">Equipements</field>
+	        <field name="name">Matériels</field>
 	        <field name="is_vehicle" eval="False"/>
 	        <field name="is_equipment" eval="True"/>
 	    </record>
