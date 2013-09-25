@@ -256,6 +256,24 @@ class users(osv.osv):
         #print final_menu
         return final_menu
 
+    _actions = {
+        'create':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'update':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
+        }
+    
+    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
+        #default value: empty string for each id
+        ret = {}.fromkeys(ids,'')
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
+
+        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        for record in self.browse(cr, uid, ids, context=context):
+            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
+            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
+        return ret
+
 
     _columns = {
             'firstname': fields.char('firstname', size=128),
@@ -276,6 +294,7 @@ class users(osv.osv):
             'manage_teams': fields.one2many('openstc.team', 'manager_id', "Teams"),
             'isDST' : fields.function(_get_group, arg="DIRE", method=True,type='boolean', store=False), #DIRECTOR group
             'isManager' : fields.function(_get_group, arg="MANA", method=True,type='boolean', store=False), #MANAGER group
+            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
 
     }
 
