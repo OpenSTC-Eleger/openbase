@@ -26,6 +26,7 @@ from osv.orm import browse_record, browse_null
 from osv import osv, fields
 import re
 import unicodedata
+from reportlab.lib.set_ops import intersect
 #----------------------------------------------------------
 # Services
 #----------------------------------------------------------
@@ -273,7 +274,37 @@ class users(osv.osv):
             #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
             ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
         return ret
-
+    
+    #get OpenSTC groups and retrieve the higher one the user has    
+    def _get_current_group(self, cr, uid, ids, name ,args, context=None):
+        
+        def weight_hierarchy(current_group, groups, i=0):
+            current_group['hierarchy_sequence'] = i + 1
+            groups_implie_current = [g for g in groups if g['implied_ids'] and current_group['id'] in g['implied_ids']]
+            for g in groups_implie_current:
+                weight_hierarchy(g, groups, i+1)
+            return 
+        ret = {}.fromkeys(ids,False)
+        #first, order groups by their 'weight' in hierarchy
+        #i begin by getting all openstc Groups
+        groups_id = self.pool.get("res.groups").search(cr, uid, [('name','ilike','openstc')], context=context)
+        groups = self.pool.get("res.groups").read(cr, uid, groups_id, ['name','implied_ids'])
+        #and i order them, starting with lower of them (the ones which don't implied others)
+        first_groups = [g for g in groups if not g['implied_ids'] or not intersect(g['implied_ids'], groups_id)]
+        for g in first_groups:
+            weight_hierarchy(g, groups)
+        
+        #and loop groups (ordered by higher weight) to check groups_id of each user
+        users = self.pool.get("res.users").read(cr, uid, ids,['groups_id'])
+        for g in sorted(groups, key=lambda(item):item['hierarchy_sequence'], reverse=True):
+            for user in users:
+                #if user has this group
+                if g['id'] in user['groups_id']:
+                    #link user with its higher group, keep only simple string from group_name (display string after last slash)
+                    ret[user['id']] = [g['id'],g['name'].split('/')[-1]]
+                    #and remove user for next loops
+                    users.remove(user)
+        return ret
 
     _columns = {
             'firstname': fields.char('firstname', size=128),
@@ -295,7 +326,7 @@ class users(osv.osv):
             'isDST' : fields.function(_get_group, arg="DIRE", method=True,type='boolean', store=False), #DIRECTOR group
             'isManager' : fields.function(_get_group, arg="MANA", method=True,type='boolean', store=False), #MANAGER group
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
-
+            'current_group':fields.function(_get_current_group, method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
     }
 
     def create(self, cr, uid, data, context={}):
