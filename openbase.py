@@ -206,7 +206,7 @@ class users(osv.osv):
             group_ids = group_obj.search(cr, uid, [('code','=', arg),('id','in',user['groups_id'])])
             res[id] = True if len( group_ids ) != 0 else False
          return res
-     
+
     def get_menu_formatted(self, cr, uid, context=None):
         def parseToUrl(val):
             regexp_remove = re.compile("[\-:]+")
@@ -223,7 +223,7 @@ class users(osv.osv):
                 ret.append(''.join([x for x in unicodedata.normalize('NFKD',item) if unicodedata.category(x)[0] in ('L','N')]))
             ret = '-'.join(ret)
             return ret.lower()
-        
+
         def get_menu_hierarchy(item,menu_dict):
             ret = []
             for child_id in item['child_id']:
@@ -241,6 +241,7 @@ class users(osv.osv):
         menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
         #get the user context (because method is called without context, by default)
         menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
+
         menu = sorted(menu, key=lambda item: item['parent_id'])
         menu_dict = {}
         for item in menu:
@@ -253,7 +254,7 @@ class users(osv.osv):
                 if menu_stc and item['id'] == menu_stc[0]['res_id']:
                     item.update({'children':get_menu_hierarchy(item, menu_dict)})
                     final_menu.append(item)
-        
+
         #print final_menu
         return final_menu
 
@@ -357,6 +358,9 @@ class users(osv.osv):
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
             'current_group':fields.function(_get_current_group, method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
     }
+    _defaults = {
+        'context_tz' : lambda self, cr, uid, context : 'Europe/Paris',
+    }
 
     def create(self, cr, uid, data, context={}):
         #_logger.debug('create USER-----------------------------------------------');
@@ -375,7 +379,6 @@ class users(osv.osv):
         return res
 
     def write(self, cr, uid, ids, data, context=None):
-
         if data.has_key('isManager')!=False and data['isManager']==True :
             self.set_manager(cr, uid, ids, data, context)
 
@@ -615,7 +618,7 @@ class team(osv.osv):
         'update':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
         'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
         }
-    
+
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
         ret = {}.fromkeys(ids,'')
@@ -627,7 +630,7 @@ class team(osv.osv):
             #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
             ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
         return ret
-    
+
     _fields_names = {'service_names':'service_ids',
                     'user_names':'user_ids'}
 
@@ -649,7 +652,7 @@ class team(osv.osv):
                         val.append([item.id,item.name_get()[0][1]])
                     res[obj.id].update({fname:val})
             return res
-        
+
         ret = super(team, self).__init__(pool,cr)
         #add _field_names to fields definition of the model
         for f in self._fields_names.keys():
@@ -657,7 +660,7 @@ class team(osv.osv):
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
         return ret
 
-    
+
     _columns = {
             'name': fields.char('name', size=128),
             'manager_id': fields.many2one('res.users', 'Manager'),
@@ -665,7 +668,7 @@ class team(osv.osv):
             'user_ids': fields.many2many('res.users', 'openstc_team_users_rel', 'team_id', 'user_id', 'Users'),
             'free_user_ids' : fields.function(_get_free_users, method=True,type='many2one', store=False),
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
-    
+
     }
     #Calculates the agents can be added to the team
     def _get_members(self, cr, uid, ids, fields, arg, context):
