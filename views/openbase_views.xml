@@ -101,6 +101,7 @@
         </record>
 		
 		
+		
 		<!-- service -->
 		<record model="ir.ui.view" id="view_openstc_service_form">
             <field name="name">openstc.service.form</field>
@@ -253,6 +254,24 @@
 	   		</field>
 	   	</record>
 	   	
+   	    
+   	    <!-- product category inheritance -->
+   	    <record model="ir.ui.view" id="view_openbase_product_category_form">
+   	        <field name="name">openbase.product.category.form</field>
+   	        <field name="model">product.category</field>
+   	        <field name="inherit_id" ref="product.product_category_form_view"/>
+   	        <field name="type">form</field>
+   	        <field name="arch" type="xml">
+   	            <field name="type" position="after">
+   	                <group colspan="2" col="4">
+   	                    <field name="is_vehicle"/>
+   	                    <field name="is_equipment"/>
+   	                </group>
+   	                
+   	            </field>
+   	        </field>
+   	    </record>
+   	    
       	    <!-- Vue Produits par défaut -->
 		<record model="ir.ui.view" id="view_openstock_fournitures_main_tree">
 			<field name="name">fourniture.product.tree.main</field>

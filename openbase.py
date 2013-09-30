@@ -26,6 +26,7 @@ from osv.orm import browse_record, browse_null
 from osv import osv, fields
 import re
 import unicodedata
+from reportlab.lib.set_ops import intersect
 #----------------------------------------------------------
 # Services
 #----------------------------------------------------------
@@ -34,6 +35,25 @@ class service(osv.osv):
     _name = "openstc.service"
     _description = "openstc.service"
     _rec_name = "name"
+
+
+    _actions = {
+        'create':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'update':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
+        }
+
+    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
+        #default value: empty string for each id
+        ret = {}.fromkeys(ids,'')
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
+
+        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        for record in self.browse(cr, uid, ids, context=context):
+            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
+            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
+        return ret
 
     _columns = {
             'name': fields.char('Name', size=128, required=True),
@@ -45,10 +65,11 @@ class service(osv.osv):
             'user_ids': fields.one2many('res.users', 'service_id', "Users"),
             'team_ids': fields.many2many('openstc.teams', 'openstc_team_services_rel', 'service_id','team_id','Teams'),
             'site_ids':fields.many2many('openstc.site', 'openstc_site_services_rel', 'service_id', 'site_id', 'Sites'),
+            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
+
     }
+
 service()
-
-
 
 #----------------------------------------------------------
 # Partner
@@ -59,10 +80,32 @@ class openstc_partner_type(osv.osv):
     _description = "openstc.partner.type"
     _rec_name = "name"
 
+
+    _actions = {
+        'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
+        'update': lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'create': lambda self,cr,uid,record,groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+
+    }
+
+    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
+        #default value: empty string for each id
+        ret = {}.fromkeys(ids,'')
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
+
+        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        for record in self.browse(cr, uid, ids, context=context):
+            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
+            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
+        return ret
+
     _columns = {
             'name': fields.char('Name', size=128, required=True),
             'code': fields.char('Code', size=32, required=True),
             'claimers': fields.one2many('res.partner', 'type_id', "Claimers"),
+            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
+
     }
 openstc_partner_type()
 
@@ -79,7 +122,7 @@ class openstc_partner_activity(osv.osv):
     _columns = {
         'name':fields.char('Activity name',size=128, required=True),
         'parent_activity_id':fields.many2one('openstc.partner.activity','Parent Activity'),
-        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True, store={'openstc.partner.type':[lambda self,cr,uid,ids,ctx={}:ids, ['name','parent_id'],10]}),
+        'complete_name':fields.function(_name_get_func, string='Activity name',type='char', method=True, store={'openstc.partner.activity':[lambda self,cr,uid,ids,ctx={}:ids, ['name','parent_id'],10]}),
         }
 
     def recursive_name_get(self, cr, uid, record, context=None):
@@ -190,8 +233,14 @@ class users(osv.osv):
                 ret.append(child)
             return ret
 
-        menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context)
-        menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context)
+        if not context or context is None:
+            context = self.pool.get("res.users").context_get(cr, uid, context=context)
+        #get only STC menu, regarding ir.model.data
+        menu_stc_ids = self.pool.get("ir.model.data").search(cr, uid, [('module','=','base',),('name','=','menu_main_pm')])
+        menu_stc = self.pool.get("ir.model.data").read(cr, uid, menu_stc_ids, ['res_id'])
+        menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
+        #get the user context (because method is called without context, by default)
+        menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
         menu = sorted(menu, key=lambda item: item['parent_id'])
         menu_dict = {}
         for item in menu:
@@ -200,12 +249,90 @@ class users(osv.osv):
         final_menu = []
         for item in menu:
             if not item['parent_id']:
-                item.update({'children':get_menu_hierarchy(item, menu_dict)})
-                final_menu.append(item)
-
+                #retrieve only STC menus
+                if menu_stc and item['id'] == menu_stc[0]['res_id']:
+                    item.update({'children':get_menu_hierarchy(item, menu_dict)})
+                    final_menu.append(item)
         #print final_menu
         return final_menu
 
+    _actions = {
+        'create':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'update':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
+        'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
+        }
+
+    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
+        #default value: empty string for each id
+        ret = {}.fromkeys(ids,'')
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
+
+        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        for record in self.browse(cr, uid, ids, context=context):
+            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
+            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
+        return ret
+
+    #get OpenSTC groups and retrieve the higher one the user has
+    def _get_current_group(self, cr, uid, ids, name ,args, context=None):
+
+        def weight_hierarchy(current_group, groups, i=0):
+            current_group['hierarchy_sequence'] = i + 1
+            groups_implie_current = [g for g in groups if g['implied_ids'] and current_group['id'] in g['implied_ids']]
+            for g in groups_implie_current:
+                weight_hierarchy(g, groups, i+1)
+            return
+        ret = {}.fromkeys(ids,False)
+        #first, order groups by their 'weight' in hierarchy
+        #i begin by getting all openstc Groups
+        groups_id = self.pool.get("res.groups").search(cr, uid, [('name','ilike','openstc')], context=context)
+        groups = self.pool.get("res.groups").read(cr, uid, groups_id, ['name','implied_ids'])
+        #and i order them, starting with lower of them (the ones which don't implied others)
+        first_groups = [g for g in groups if not g['implied_ids'] or not intersect(g['implied_ids'], groups_id)]
+        for g in first_groups:
+            weight_hierarchy(g, groups)
+
+        #and loop groups (ordered by higher weight) to check groups_id of each user
+        users = self.pool.get("res.users").read(cr, uid, ids,['groups_id'])
+        for g in sorted(groups, key=lambda(item):item['hierarchy_sequence'], reverse=True):
+            for user in users:
+                #if user has this group
+                if g['id'] in user['groups_id']:
+                    #link user with its higher group, keep only simple string from group_name (display string after last slash)
+                    ret[user['id']] = [g['id'],g['name'].split('/')[-1]]
+                    #and remove user for next loops
+                    users.remove(user)
+        return ret
+
+    _fields_names = {'service_names':'service_ids',
+                    }
+
+    #@TODO: move this feature to template model (in another git branch)
+    def __init__(self, pool, cr):
+        #method to retrieve many2many fields with custom format
+        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
+            res = {}
+            if not isinstance(name, list):
+                name = [name]
+            for obj in self.browse(cr, uid, ids, context=context):
+                #for each field_names to read, retrieve their values
+                res[obj.id] = {}
+                for fname in name:
+                    #many2many browse_record field to map
+                    field_ids = obj[self._fields_names[fname]]
+                    val = []
+                    for item in field_ids:
+                        val.append([item.id,item.name_get()[0][1]])
+                    res[obj.id].update({fname:val})
+            return res
+
+        ret = super(users, self).__init__(pool,cr)
+        #add _field_names to fields definition of the model
+        for f in self._fields_names.keys():
+            #force name of new field with '_names' suffix
+            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
+        return ret
 
     _columns = {
             'firstname': fields.char('firstname', size=128),
@@ -226,7 +353,8 @@ class users(osv.osv):
             'manage_teams': fields.one2many('openstc.team', 'manager_id', "Teams"),
             'isDST' : fields.function(_get_group, arg="DIRE", method=True,type='boolean', store=False), #DIRECTOR group
             'isManager' : fields.function(_get_group, arg="MANA", method=True,type='boolean', store=False), #MANAGER group
-
+            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
+            'current_group':fields.function(_get_current_group, method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
     }
     _defaults = {
         'context_tz' : lambda self, cr, uid, context : 'Europe/Paris',

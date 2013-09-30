@@ -111,6 +111,19 @@
 	</data>
 	
 	<data>
+	    <record model="product.category" id="openbase_product_categ_main_vehicle">
+	        <field name="name">Véhicules</field>
+	        <field name="is_vehicle" eval="True"/>
+	        <field name="is_equipment" eval="False"/>
+	    </record>
+	    <record model="product.category" id="openbase_product_categ_main_equipment">
+	        <field name="name">Matériels</field>
+	        <field name="is_vehicle" eval="False"/>
+	        <field name="is_equipment" eval="True"/>
+	    </record>
+	</data>
+	
+	<data>
    		 <record model="res.groups" id="hotel.group_hotel_manager">
 		     <field name="implied_ids" eval="[(4,ref('hotel.group_hotel_user'))]"/>
 		 </record>
