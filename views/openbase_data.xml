@@ -107,7 +107,12 @@
 	    <field name="name">Association</field>
 	    <field name="code">ASSOCIATION</field>
 	</record>
-		 
+	
+ 	<record id="openstc_prets_partner_type_part" model="openstc.partner.type">
+	    <field name="name">Particulier</field>
+	    <field name="code">PARTICULIER</field>
+	</record>
+ 		 
 	</data>
 	
 	<data>
