@@ -176,9 +176,7 @@ class equipment(osv.osv):
          'type_prod':'materiel',
          'internal_use': False,
         }
-    _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
-    ]
+
 
 equipment()
 
@@ -194,9 +192,6 @@ class site_type(osv.osv):
             'name': fields.char('Name', size=128, required=True),
             'code': fields.char('Code', size=32, required=True),
     }
-    _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
-    ]
 site_type()
 
 class site(osv.osv):
@@ -272,9 +267,6 @@ class site(osv.osv):
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
 
     }
-    _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
-    ]
 
 site()
 
