@@ -33,7 +33,7 @@ class product_category(osv.osv):
         'is_vehicle':False,
         'is_equipment': False,
         }
-    
+
     #get original parent to inherit to its data 'is_vehicle' and 'is_equipment'
     def check_parent_vehicle_or_equipment(self, cr, uid, vals, context=None):
         parent_id = vals.get('parent_id', False)
@@ -47,16 +47,16 @@ class product_category(osv.osv):
             vals['is_equipment'] = parent.is_equipment
 
         return vals
-    
+
     def create(self, cr, uid, vals, context=None):
         vals2 = self.check_parent_vehicle_or_equipment(cr, uid, vals.copy(), context=context)
         id = super(product_category, self).create(cr, uid, vals2, context=context)
         return id
-    
+
     def write(self, cr, uid, ids, vals, context=None):
         vals2 = self.check_parent_vehicle_or_equipment(cr, uid, vals.copy(), context=context)
         return super(product_category, self).write(cr, uid, ids, vals2, context=context)
-        
+
 product_category()
 
 class product_product(osv.osv):
@@ -125,7 +125,7 @@ class equipment(osv.osv):
                         val.append([item.id,item.name_get()[0][1]])
                     res[obj.id].update({fname:val})
             return res
-        
+
         ret = super(equipment, self).__init__(pool,cr)
         #add _field_names to fields definition of the model
         for f in self._fields_names.keys():
@@ -176,6 +176,9 @@ class equipment(osv.osv):
          'type_prod':'materiel',
          'internal_use': False,
         }
+    _sql_constraints = [
+        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+    ]
 
 equipment()
 
@@ -191,6 +194,9 @@ class site_type(osv.osv):
             'name': fields.char('Name', size=128, required=True),
             'code': fields.char('Code', size=32, required=True),
     }
+    _sql_constraints = [
+        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+    ]
 site_type()
 
 class site(osv.osv):
@@ -248,7 +254,7 @@ class site(osv.osv):
             #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
             ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
         return ret
-    
+
     _columns = {
 
             'name': fields.char('Name', size=128, required=True),
@@ -266,6 +272,9 @@ class site(osv.osv):
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
 
     }
+    _sql_constraints = [
+        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+    ]
 
 site()
 
