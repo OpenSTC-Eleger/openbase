@@ -68,6 +68,9 @@ class service(osv.osv):
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
 
     }
+    _sql_constraints = [
+        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+    ]
 
 service()
 
