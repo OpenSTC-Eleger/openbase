@@ -177,6 +177,9 @@ class equipment(osv.osv):
          'internal_use': False,
         }
 
+    _sql_constraints = [
+        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !'),
+    ]
 
 equipment()
 
