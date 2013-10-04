@@ -75,10 +75,6 @@ class product_product(osv.osv):
     }
 
 
-    _sql_constraints = [
-        ('default_code_uniq', 'unique (default_code)', '*code* / The code name must be unique !'),
-    ]
-
 product_product()
 #----------------------------------------------------------
 # Equipments
