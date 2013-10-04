@@ -35,7 +35,7 @@ class service(osv.osv):
     _name = "openstc.service"
     _description = "openstc.service"
     _rec_name = "name"
-
+    _parent_name = "service_id"
 
     _actions = {
         'create':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
