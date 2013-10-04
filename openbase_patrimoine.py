@@ -75,9 +75,6 @@ class product_product(osv.osv):
     }
 
 
-    _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !'),
-    ]
 
 product_product()
 #----------------------------------------------------------
@@ -182,6 +179,10 @@ class equipment(osv.osv):
          'internal_use': False,
         }
 
+
+    _sql_constraints = [
+        ('code_uniq', 'unique (default_code)', '*code* / The code name must be unique !'),
+    ]
 
 equipment()
 
