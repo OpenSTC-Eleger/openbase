@@ -116,6 +116,7 @@
 	</data>
 	
 	<data>
+
 	    <record model="product.category" id="openbase_product_categ_main_vehicle">
 	        <field name="name">Véhicules</field>
 	        <field name="is_vehicle" eval="True"/>

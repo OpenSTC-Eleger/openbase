@@ -247,6 +247,7 @@ class users(osv.osv):
         menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
         #get the user context (because method is called without context, by default)
         menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
+
         menu = sorted(menu, key=lambda item: item['parent_id'])
         menu_dict = {}
         for item in menu:
