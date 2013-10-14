@@ -36,7 +36,7 @@ class service(osv.osv):
     _name = "openstc.service"
     _description = "openstc.service"
     _rec_name = "name"
-
+    _parent_name = "service_id"
 
     _actions = {
         'create':lambda self,cr,uid,record, groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
@@ -248,6 +248,7 @@ class users(osv.osv):
         menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
         #get the user context (because method is called without context, by default)
         menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
+
         menu = sorted(menu, key=lambda item: item['parent_id'])
         menu_dict = {}
         for item in menu:
@@ -367,6 +368,19 @@ class users(osv.osv):
         'context_tz' : lambda self, cr, uid, context : 'Europe/Paris',
     }
 
+    """
+    @param ids: user to check
+    @note: this method is used to check that service_id is in service_ids (for work-model purpose)
+            after each create / update action on res.users
+    """
+    def check_service_id_and_service_ids(self, cr, uid, ids, context=None):
+        if not isinstance(ids,list):
+            ids = [ids]
+        for user in self.read(cr, uid, ids, ['service_id','service_ids'],context=context):
+            if user['service_id'] and user['service_id'][0] not in user['service_ids']:
+                self.write(cr, uid, user['id'], {'service_ids':[(4,user['service_id'][0])]})
+        return True
+
     def create(self, cr, uid, data, context={}):
         #_logger.debug('create USER-----------------------------------------------');
         res = super(users, self).create(cr, uid, data, context)
@@ -380,7 +394,7 @@ class users(osv.osv):
             self.set_manager(cr, uid, [res], data, context)
         #TODO
         #else
-
+        self.check_service_id_and_service_ids(cr, uid, [res], context=context)
         return res
 
     def write(self, cr, uid, ids, data, context=None):
@@ -388,6 +402,7 @@ class users(osv.osv):
             self.set_manager(cr, uid, ids, data, context)
 
         res = super(users, self).write(cr, uid, ids, data, context=context)
+        self.check_service_id_and_service_ids(cr, uid, ids, context=context)
         return res
 
     def set_manager(self, cr, uid, ids, data,context):
