@@ -27,6 +27,7 @@ from osv import osv, fields
 import re
 import unicodedata
 from reportlab.lib.set_ops import intersect
+from datetime import datetime
 #----------------------------------------------------------
 # Services
 #----------------------------------------------------------
@@ -667,6 +668,7 @@ class team(osv.osv):
 
     _columns = {
             'name': fields.char('name', size=128),
+            'deleted_at': fields.date('Deleted date'),
             'manager_id': fields.many2one('res.users', 'Manager'),
             'service_ids': fields.many2many('openstc.service', 'openstc_team_services_rel', 'team_id', 'service_id', 'Services'),
             'user_ids': fields.many2many('res.users', 'openstc_team_users_rel', 'team_id', 'user_id', 'Users'),
@@ -691,6 +693,19 @@ class team(osv.osv):
              team_users.append(officerSerialized)
             #res[id] = team_users
         return team_users
+
+    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
+        deleted_domain = []
+        for s in args :
+            if 'deleted_at' in s  :
+                args.remove(s)
+                deleted_domain = [('deleted_at','=', False)]
+        args.extend(deleted_domain)
+        return super(team, self).search(cr, uid, args, offset, limit, order, context, count)
+
+    def unlink(self, cr, uid, ids, context=None):
+       self.write(cr, uid, ids, {'deleted_at':datetime.now().strftime('%Y-%m-%d')})
+       return True
 
 team()
 
