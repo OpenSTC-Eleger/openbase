@@ -267,6 +267,8 @@ class site(osv.osv):
             'long': fields.float('Longitude'),
             'lat': fields.float('Latitude'),
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
+            'product_id':fields.many2one('product.product', 'Produit associé',help=''),
+
 
     }
 
