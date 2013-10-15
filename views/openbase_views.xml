@@ -83,6 +83,12 @@
                 		<field name="name"/>
                 		<field name="marque"/>
                 	</group>
+                	<group colspan="4" col="7">
+	                	<field name="internal_booking" colspan="2"/>
+	                	<field name="service_bookable_ids" colspan="5"/>
+	                	<field name="external_booking" colspan="2"/>
+	                	<field name="partner_type_bookable_ids" colspan="5"/>
+					</group>                	
                 </form>
             </field>
         </record>
@@ -168,6 +174,13 @@
 		                		<field name="width"/>
 		                		<field name="surface"/>
 		                	</group>
+       	                	<group colspan="4" col="7">
+			                	<field name="internal_booking" colspan="2"/>
+			                	<field name="service_bookable_ids" colspan="5"/>
+			                	<field name="external_booking" colspan="2"/>
+			                	<field name="partner_type_bookable_ids" colspan="5"/>
+			                	<field name="product_id"/>
+							</group>  
                 		</page>
                 	</notebook>
                 </form>

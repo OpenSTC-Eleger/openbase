@@ -142,6 +142,13 @@ class equipment(osv.osv):
             #Service authorized to use equipment
             'service_ids':fields.many2many('openstc.service', 'openstc_equipment_services_rel', 'equipment_id', 'service_id', 'Services'),
             'internal_use':fields.boolean('Internal Use', help='Means that this equipment can be used in intervention, or be the target of intervention request.'),
+            #Services authorized to book equipment
+            'service_bookable_ids':fields.many2many('openstc.service', 'openstc_equipment_bookable_services_rel', 'equipment_id', 'service_id', 'Services'),
+            'internal_booking':fields.boolean('Internal Booking', help="Means that this equipment can be booked by internal departments"),
+            #Partner types authorized to book equipment
+            'partner_type_bookable_ids':fields.many2many('openstc.partner.type', 'openstc_equipment_bookable_partner_type_rel', 'equipment_id', 'partner_type_id', 'Services'),
+            'external_booking':fields.boolean('External Booking', help="Means that this equipment can be booked by external partners"),
+            
             #Service owner
             'service':fields.many2one('openstc.service', 'Service'),
             'maintenance_service_ids': fields.many2many('openstc.service','openstc_equipement_maintenance_services_rel','equipment_id','service_id', 'Maintenance services'),
@@ -268,12 +275,14 @@ class site(osv.osv):
             'lat': fields.float('Latitude'),
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
             'product_id':fields.many2one('product.product', 'Produit associé',help=''),
+            #Services authorized to book site
+            'service_bookable_ids':fields.many2many('openstc.service', 'openstc_site_bookable_services_rel', 'site_id', 'service_id', 'Services'),
+            'internal_booking':fields.boolean('Internal Booking', help="Means that this site can be booked by internal departments"),
+            #Partner types authorized to book site
+            'partner_type_bookable_ids':fields.many2many('openstc.partner.type', 'openstc_site_bookable_partner_type_rel', 'site_id', 'partner_type_id', 'Services'),
+            'external_booking':fields.boolean('External     Booking', help="Means that this site can be booked by external partners"),
 
 
     }
 
 site()
-
-
-
-
