@@ -242,8 +242,12 @@ class users(osv.osv):
         if not context or context is None:
             context = self.pool.get("res.users").context_get(cr, uid, context=context)
         #get only STC menu, regarding ir.model.data
-        menu_stc_ids = self.pool.get("ir.model.data").search(cr, uid, [('module','=','base',),('name','=','menu_main_pm')])
-        menu_stc = self.pool.get("ir.model.data").read(cr, uid, menu_stc_ids, ['res_id'])
+        root_openstc_menu_map = {'menu_main_pm':'openstc'}
+        menu_stc_ids = self.pool.get("ir.model.data").search(cr, uid, [('module','=','base',),('name','in',root_openstc_menu_map.keys())])
+        menu_stc = self.pool.get("ir.model.data").read(cr, uid, menu_stc_ids, ['res_id','name'])
+        root_openstc_menu_dict = {}
+        for menu_data in menu_stc:
+            root_openstc_menu_dict.update({menu_data['res_id']:menu_data['name']})
         menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
         #get the user context (because method is called without context, by default)
         menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
@@ -257,9 +261,11 @@ class users(osv.osv):
         for item in menu:
             if not item['parent_id']:
                 #retrieve only STC menus
-                if menu_stc and item['id'] == menu_stc[0]['res_id']:
-                    item.update({'children':get_menu_hierarchy(item, menu_dict)})
-                    final_menu.append(item)
+                #if menu_stc and item['id'] in root_openstc_menu_dict.keys():    
+                item.update({'children':get_menu_hierarchy(item, menu_dict),
+                             #'module':root_openstc_menu_map.get(root_openstc_menu_dict.get(item['id']))
+                             })
+                final_menu.append(item)
         #print final_menu
         return final_menu
 
