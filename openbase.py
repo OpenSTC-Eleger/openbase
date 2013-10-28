@@ -459,7 +459,7 @@ class users(osv.osv):
             search_criterions = [('service_ids.id','child_of',target_user.service_id.id)]
 
         else:
-            search_criterions = [('manager_id','=',target_user.id)]
+            search_criterions = [('manager_id.id','=',target_user.id)]
 
         teams_ids = teams_collection.search(cr,uid,search_criterions)
         teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
