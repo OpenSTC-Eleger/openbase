@@ -456,7 +456,7 @@ class users(osv.osv):
             search_criterions = []
 
         elif target_user.isManager:
-            search_criterions = [('service_ids.id','=',target_user.service_id.id)]
+            search_criterions = [('service_ids.id','child_of',target_user.service_id.id)]
 
         else:
             search_criterions = [('manager_id','=',target_user.id)]
@@ -468,7 +468,9 @@ class users(osv.osv):
     def get_manageable_officers(self, cr, uid, target_user_id, context=None):
         """
         Returns the user list available for task assignations
-
+        for DST: all user from technical services
+        for MANAGER : all user frpù services (and their children) manager belongs to
+        for TEAM MANAGER: all user from teams TEAM MANAGER belongs to
         :rtype : List
         :param cr: database cursor
         :param uid: current user id
@@ -480,19 +482,24 @@ class users(osv.osv):
                                      'firstname' : officer['firstname'],
                                      'complete_name' : ("%s %s" % (officer['firstname'], officer['name'])).strip(),
                                      'teams': officer['team_ids']}
-
+        
+        #we can't use domain as [('groups_id.code','!=','DIRE')] 
+        #because each user has many groups, so all of them will have at least one group matching this criteria 
+        not_dst_ids = self.search(cr, uid, [('groups_id.code','=','DIRE')],context=context)
+        search_criterion = [('id','!=','1')]
+        if not_dst_ids:
+            search_criterion.append(('id','not in',not_dst_ids))
         target_user = self.browse(cr, uid, target_user_id, context=context)
         if target_user.isDST:
-            search_criterion = [('id','!=','1')]
+            search_criterion.append(('service_ids.technical','=',True))
 
         elif target_user.isManager:
-            search_criterion = [('service_ids.id','=',target_user.service_id.id)]
+            search_criterion.append(('service_ids.id','child_of',target_user.service_id.id))
 
         else:
-            search_criterion= [('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams))]
+            search_criterion.append(('team_ids.id','in', map((lambda t: t.id),target_user.manage_teams)))
 
-        not_dst = [('groups_id.code','!=','DIRE')]
-        officers_ids = self.search(cr, uid, search_criterion + not_dst )
+        officers_ids = self.search(cr, uid, search_criterion)
         officers = self.read(cr,uid,officers_ids, ['name','firstname','team_ids'])
         return map(formater,officers)
 
