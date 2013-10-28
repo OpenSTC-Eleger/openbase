@@ -257,7 +257,7 @@ class users(osv.osv):
         for item in menu:
             item.update({'tag':parseToUrl(item['name'])})
             menu_dict.update({item['id']:item})
-        final_menu = []
+        final_menu = {}
         for item in menu:
             if not item['parent_id']:
                 #retrieve only STC menus
@@ -265,7 +265,7 @@ class users(osv.osv):
                 item.update({'children':get_menu_hierarchy(item, menu_dict),
                              #'module':root_openstc_menu_map.get(root_openstc_menu_dict.get(item['id']))
                              })
-                final_menu.append(item)
+                final_menu.update({item['tag']:item})
         #print final_menu
         return final_menu
 

@@ -24,6 +24,7 @@
         "views/base_data.xml",
         "views/openbase_views.xml",
         "views/openbase_menu.xml",
+        "security/openbase_security.xml",
         
         "security/ir.model.access.csv",
              ],
