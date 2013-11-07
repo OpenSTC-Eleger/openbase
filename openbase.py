@@ -229,7 +229,11 @@ class users(osv.osv):
                 ret.append(''.join([x for x in unicodedata.normalize('NFKD',item) if unicodedata.category(x)[0] in ('L','N')]))
             ret = '-'.join(ret)
             return ret.lower()
-
+        
+        """
+        @param item: current item to retrieve children menuitem recursively
+        @param menu_dict: dict of all of the menuitems to be assembled
+        """
         def get_menu_hierarchy(item,menu_dict):
             ret = []
             for child_id in item['child_id']:
@@ -238,34 +242,38 @@ class users(osv.osv):
                 child.update({'children':get_menu_hierarchy(child,menu_dict)})
                 ret.append(child)
             return ret
-
+        #get the user context (because method is called without context, by default)
         if not context or context is None:
             context = self.pool.get("res.users").context_get(cr, uid, context=context)
-        #get only STC menu, regarding ir.model.data
-        root_openstc_menu_map = {'menu_main_pm':'openstc'}
-        menu_stc_ids = self.pool.get("ir.model.data").search(cr, uid, [('module','=','base',),('name','in',root_openstc_menu_map.keys())])
-        menu_stc = self.pool.get("ir.model.data").read(cr, uid, menu_stc_ids, ['res_id','name'])
-        root_openstc_menu_dict = {}
-        for menu_data in menu_stc:
-            root_openstc_menu_dict.update({menu_data['res_id']:menu_data['name']})
-        menu_ids = self.pool.get("ir.ui.menu").search(cr, uid, [], context=context)
-        #get the user context (because method is called without context, by default)
-        menu = self.pool.get("ir.ui.menu").read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
-
-        menu = sorted(menu, key=lambda item: item['parent_id'])
-        menu_dict = {}
-        for item in menu:
-            item.update({'tag':parseToUrl(item['name'])})
-            menu_dict.update({item['id']:item})
+        data_obj = self.pool.get('ir.model.data')
+        menu_obj = self.pool.get('ir.ui.menu')
+        #retrieve all OpenSTC modules, because stc users have only access to root OpenSTC menus and not any other OpenERP menu
+        menu_root_ids = menu_obj.search(cr, uid, [('parent_id','=', False)],context=context)
+        #default value to return if not any menu is found (bad user configuration)
         final_menu = {}
-        for item in menu:
-            if not item['parent_id']:
-                #retrieve only STC menus
-                #if menu_stc and item['id'] in root_openstc_menu_dict.keys():    
-                item.update({'children':get_menu_hierarchy(item, menu_dict),
-                             #'module':root_openstc_menu_map.get(root_openstc_menu_dict.get(item['id']))
-                             })
-                final_menu.update({item['tag']:item})
+        if menu_root_ids:
+            menu_ids = menu_obj.search(cr, uid, [('id','child_of',menu_root_ids)], context=context)
+            #and retrieve corresponding ir.model.data to know in which module they have been created
+            menu_data_ids = data_obj.search(cr, uid, [('model','=','ir.ui.menu'),('res_id','in',menu_ids)])
+            menu_data = data_obj.read(cr, uid, menu_data_ids, ['module','res_id'],context=context)
+            menu_data = dict([(item['res_id'],item['module']) for item in menu_data ])
+            menu = menu_obj.read(cr, uid, menu_ids, ['id','name','parent_id','child_id'], context=context)
+            menu = sorted(menu, key=lambda item: item['parent_id'])
+            menu_dict = {}
+            #for each menuitem of OpenSTC, add a slugify-like tag, and a tag-module to be retrieved according to module
+            for item in menu:
+                item.update({'tag':parseToUrl(item['name']),
+                             'tag_module':menu_data.get(item['id'],'')})
+                menu_dict.update({item['id']:item})
+            
+            for item in menu:
+                if not item['parent_id']:
+                    #retrieve only STC menus
+                    #if menu_stc and item['id'] in root_openstc_menu_dict.keys():    
+                    item.update({'children':get_menu_hierarchy(item, menu_dict),
+                                 #'module':root_openstc_menu_map.get(root_openstc_menu_dict.get(item['id']))
+                                 })
+                    final_menu.update({item['tag']:item})
         #print final_menu
         return final_menu
 
