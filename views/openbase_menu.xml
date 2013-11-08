@@ -67,8 +67,8 @@
         
         <!-- Configuration -->
    	    <menuitem id="menu_configuration"
-			groups="openbase.openstc_dst"
 			name="Configuration"
+   			groups="openbase.openstc_dst,openbase.openstc_manager"			
 			parent="base.main_menu_openbase"
 			sequence="1"/>
 		
@@ -76,6 +76,7 @@
    	    <menuitem id="menu_configuration_openbase"
 			name="Général"
 			parent="menu_configuration"
+			groups="openbase.openstc_dst,openbase.openstc_manager"
 			sequence="1"/>
 		
    	    <!--  Configuration/Partner -->
@@ -91,7 +92,7 @@
    		<menuitem action="action_openstc_view_service"
    			id="menu_action_openstc_view_service"
    			parent="menu_configuration_openbase"
-   			groups="openbase.openstc_dst"
+   			groups="openbase.openstc_dst,openbase.openstc_manager"
    			sequence="2"/>
 
    		<!--  Configuration/Site -->
