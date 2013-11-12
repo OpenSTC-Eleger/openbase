@@ -20,6 +20,14 @@
 -->
 <openerp>
 	<data>
+
+       <record id="action_openstc_view_partner_type2" model="ir.actions.act_window">
+            <field name="name">Types d'organisation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openstc.partner.type</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
 	    
 		<record id="action_openstc_view_site" model="ir.actions.act_window">
             <field name="name">Sites</field>
@@ -116,6 +124,13 @@
    			parent="menu_configuration_openbase"
    			groups="openbase.openstc_dst,openbase.openstc_manager"
    			sequence="5"/>
+		
+   		<menuitem action="action_openstc_view_partner_type2"
+   			id="menu_action_openstc_view_partner_type2"
+   			parent="menu_configuration_openbase"
+   			groups="openbase.openstc_dst"
+   			sequence="6"/>
+		
 	</data>
 	
 	
