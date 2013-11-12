@@ -32,6 +32,16 @@ from datetime import datetime
 # Services
 #----------------------------------------------------------
 
+def _test_params(params, keys):
+    param_ok = True
+    for key in keys :
+        if params.has_key(key) == False :
+            param_ok = False
+        else :
+            if params[key]==None or params[key]=='' or params[key]==0 :
+                param_ok = False
+    return param_ok
+
 class service(osv.osv):
     _name = "openstc.service"
     _description = "openstc.service"
@@ -164,6 +174,82 @@ class res_partner(osv.osv):
 
  }
 res_partner()
+
+#claimer linked with a res.users
+class res_partner_address(osv.osv):
+    _description ='Partner Addresses st'
+    _name = 'res.partner.address'
+    _inherit = "res.partner.address"
+    _order = 'type, name'
+
+
+    _columns = {
+        'user_id': fields.many2one('res.users', 'User'),
+    }
+
+    def create(self, cr, uid, data, context=None):
+        res = super(res_partner_address, self).create(cr, uid, data, context)
+        self.create_account(cr, uid, [res], data, context)
+
+        return res
+
+
+
+    def write(self, cr, uid, ids, data, context=None):
+
+        user_obj = self.pool.get('res.users')
+        partner_address = self.read(cr, uid, ids[0],
+                                    ['user_id'],
+                                    context)
+
+        if partner_address.has_key('user_id')!= False :
+            if partner_address['user_id'] != False :
+                user = user_obj.browse(cr, uid, partner_address['user_id'][0], context=context)
+                if user.id != 0 and  _test_params(data, ['login','password','name','email'])!= False :
+                    user_obj.write(cr, uid, [user.id], {
+                                    'name': data['name'],
+                                    'firstname': data['name'],
+                                    'user_email': data['email'],
+                                    'login': data['login'],
+                                    'new_password': data['password'],
+                            }, context=context)
+
+            else :
+                self.create_account(cr, uid, ids, data, context)
+
+
+
+        res = super(res_partner_address, self).write(cr, uid, ids, data, context)
+        return res
+
+    def create_account(self, cr, uid, ids, params, context):
+        if _test_params(params, ['login','password','name','email'])!= False :
+
+            company_ids = self.pool.get('res.company').name_search(cr, uid, name='STC')
+            if len(company_ids) == 1:
+                params['company_id'] = company_ids[0][0]
+            else :
+                params['company_id'] = 1;
+
+            user_obj = self.pool.get('res.users')
+
+            group_obj = self.pool.get('res.groups')
+            #Get partner group (code group=PART)
+            group_id = group_obj.search(cr, uid, [('code','=','PART')])[0]
+            user_id = user_obj.create(cr, uid,{
+                    'name': params['name'],
+                    'firstname': params['name'],
+                    'user_email': params['email'],
+                    'login': params['login'],
+                    'new_password': params['password'],
+                    'groups_id' : [(6, 0, [group_id])],
+                    })
+            self.write(cr, uid, ids, {
+                    'user_id': user_id,
+                }, context=context)
+
+
+res_partner_address()
 
 class groups(osv.osv):
     _name = "res.groups"
@@ -369,7 +455,7 @@ class users(osv.osv):
             'address_home': fields.char('Address', size=128),
             'city_home': fields.char('City', size=128),
             'phone': fields.char('Phone Number', size=12),
-
+            'contact_id': fields.one2many('res.partner.address', 'user_id', "Partner"),
             'team_ids': fields.many2many('openstc.team', 'openstc_team_users_rel', 'user_id', 'team_id', 'Teams'),
             'manage_teams': fields.one2many('openstc.team', 'manager_id', "Teams"),
             'isDST' : fields.function(_get_group, arg="DIRE", method=True,type='boolean', store=False), #DIRECTOR group
