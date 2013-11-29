@@ -74,6 +74,18 @@ class product_product(osv.osv):
         'openstc_maintenance':lambda *a: False,
     }
 
+    def openbase_change_stock_qty(self, cr, uid, id, qty, context=None):
+        loc_id = self.pool.get('ir.model.data').get_object_reference(cr, uid, 'stock','stock_location_stock')[1]
+        vals = {
+            'product_id': id,
+            'new_quantity': qty,
+            'location_id': loc_id,
+        }
+        wizard_obj = self.pool.get('stock.change.product.qty')
+        wizard_id = wizard_obj.create(cr, uid, vals,context=context)
+        wizard_obj.change_product_qty(cr, uid,[wizard_id],{'active_id':id})
+        return True
+
 
 product_product()
 #----------------------------------------------------------
@@ -203,7 +215,7 @@ class site_type(osv.osv):
     }
 site_type()
 
-class site(osv.osv):
+class Site(osv.osv):
     _name = "openstc.site"
     _description = "openstc.site"
 
@@ -282,7 +294,50 @@ class site(osv.osv):
             'partner_type_bookable_ids':fields.many2many('openstc.partner.type', 'openstc_site_bookable_partner_type_rel', 'site_id', 'partner_type_id', 'Services'),
             'external_booking':fields.boolean('External     Booking', help="Means that this site can be booked by external partners"),
 
-
     }
+    
+    def link_with_bookable(self, cr,uid, ids, context=None):
+        sites = self.browse(cr, uid, ids, context=context)
+        prod_obj = self.pool.get('product.product')
+        for site in sites:
+            vals = {'active':True,
+                    'name':site.name,
+                }
+            if site.product_id:
+                site.product_id.write(vals,context=context)
+            else:
+                prod_id = prod_obj.create(cr, uid, vals,context=context)
+                prod_obj.openbase_change_stock_qty(cr, uid, prod_id, 1, context=context)
+                site.write({'product_id':prod_id},context=context)
+        return True
+    
+    def unlink_bookable(self, cr, uid, ids, context=None):
+        sites = self.browse(cr, uid, ids, context=context)
+        for site in sites:
+            if site.product_id:
+                site.product_id.write({'active':False},context=context)
+        return True
+    
+    """
+    override to make link with product_product
+    by creating product_id if booking is set
+    """
+    def create(self, cr, uid, vals, context=None):
+        ret = super(Site, self).create(cr, uid, vals, context=context)
+        if vals.get('internal_booking',False) or vals.get('external_booking',False):
+            self.link_with_bookable(cr, uid, [ret], context=context)
+        return ret
 
-site()
+    """
+    override to make link with product_product
+    bubble name changes to product_id
+    and create product_id if booking is set and if not any product_id is already set
+    """
+    def write(self, cr, uid, ids, vals, context=None):
+        ret = super(Site, self).write(cr, uid, ids, vals, context=context)
+        for site in self.browse(cr, uid, ids, context=context):
+            if site.internal_booking or site.external_booking:
+                self.link_with_bookable(cr, uid, [site.id], context=context)
+        return ret
+
+Site()
