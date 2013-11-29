@@ -68,6 +68,7 @@ class product_product(osv.osv):
         'type_prod':fields.selection([('materiel','Matériel'),('fourniture','Fourniture Achetable'),('site','Site')], 'Type de Produit'),
         'openstc_reservable':fields.boolean('Reservable', help='Indicates if this ressource can be reserved or not by tiers'),
         'openstc_maintenance':fields.boolean('Maintenance ?', help='Indicates if this ressource can be associated to contracts for maintenance'),
+        'color':fields.char('Color', size=16),
          }
     _defaults = {
         'openstc_reservable':lambda *a: False,
@@ -302,6 +303,7 @@ class Site(osv.osv):
         for site in sites:
             vals = {'active':True,
                     'name':site.name,
+                    'type_prod':'site',
                 }
             if site.product_id:
                 site.product_id.write(vals,context=context)
