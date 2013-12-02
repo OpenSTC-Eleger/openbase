@@ -119,7 +119,9 @@ class equipment(osv.osv):
 
 
     _fields_names = {'service_names':'service_ids',
-                    'maintenance_service_names':'maintenance_service_ids'}
+                    'maintenance_service_names':'maintenance_service_ids',
+                    'service_bookable_names':'service_bookable_ids',
+                    'partner_type_bookable_names':'partner_type_bookable_ids'}
 
     #@TODO: move this feature to template model (in another git branch)
     def __init__(self, pool, cr):
@@ -272,6 +274,37 @@ class Site(osv.osv):
             ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
         return ret
 
+    _fields_names = {'service_names':'service_ids',
+                'service_bookable_names':'service_bookable_ids',
+                'partner_type_bookable_names':'partner_type_bookable_ids'}
+
+    
+    #@TODO: move this feature to template model (in another git branch)
+    def __init__(self, pool, cr):
+        #method to retrieve many2many fields with custom format
+        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
+            res = {}
+            if not isinstance(name, list):
+                name = [name]
+            for obj in self.browse(cr, uid, ids, context=context):
+                #for each field_names to read, retrieve their values
+                res[obj.id] = {}
+                for fname in name:
+                    #many2many browse_record field to map
+                    field_ids = obj[self._fields_names[fname]]
+                    val = []
+                    for item in field_ids:
+                        val.append([item.id,item.name_get()[0][1]])
+                    res[obj.id].update({fname:val})
+            return res
+
+        ret = super(Site, self).__init__(pool,cr)
+        #add _field_names to fields definition of the model
+        for f in self._fields_names.keys():
+            #force name of new field with '_names' suffix
+            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
+        return ret
+
     _columns = {
 
             'name': fields.char('Name', size=128, required=True),
@@ -279,7 +312,7 @@ class Site(osv.osv):
             'code': fields.char('Code', size=32),
             'type': fields.many2one('openstc.site.type', 'Type', required=True),
             'service_ids':fields.many2many('openstc.service', 'openstc_site_services_rel', 'site_id', 'service_id', 'Services'),
-            'service_names' : fields.function(_get_services, method=True,type='many2one', store=False),
+            #'service_names' : fields.function(_get_services, method=True,type='many2one', store=False),
             'site_parent_id': fields.many2one('openstc.site', 'Site parent', help='Site parent', ondelete='set null'),
             'length': fields.integer('Lenght'),
             'width': fields.integer('Width'),
@@ -293,7 +326,7 @@ class Site(osv.osv):
             'internal_booking':fields.boolean('Internal Booking', help="Means that this site can be booked by internal departments"),
             #Partner types authorized to book site
             'partner_type_bookable_ids':fields.many2many('openstc.partner.type', 'openstc_site_bookable_partner_type_rel', 'site_id', 'partner_type_id', 'Services'),
-            'external_booking':fields.boolean('External     Booking', help="Means that this site can be booked by external partners"),
+            'external_booking':fields.boolean('External Booking', help="Means that this site can be booked by external partners"),
 
     }
     
