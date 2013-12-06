@@ -72,8 +72,8 @@ class product_product(osv.osv):
         'color': fields.char('Color', size=16, required=True),
     }
 
-    def default_color(self,cr, uid,context=None):
-        print "#%s" % "".join([hex(randrange(0, 255))[2:] for i in range(3)])
+    def default_color(self):
+        return "#%s" % "".join([hex(randrange(0, 255))[2:] for i in range(3)])
 
     _defaults = {
         'openstc_reservable': lambda *a: False,
