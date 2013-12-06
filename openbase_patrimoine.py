@@ -22,7 +22,7 @@
 ##############################################################################
 
 from osv import osv, fields
-from random import randrange
+import random
 
 class product_category(osv.osv):
     _inherit = "product.category"
@@ -73,7 +73,8 @@ class product_product(osv.osv):
     }
 
     def default_color(self, cr, uid, context=None):
-        return "#%s" % "".join([hex(randrange(0, 255))[2:] for i in range(3)])
+        r = lambda: random.randint(0,255)
+        return '#%02X%02X%02X' % (r(),r(),r())
 
     _defaults = {
         'openstc_reservable': lambda *a: False,
