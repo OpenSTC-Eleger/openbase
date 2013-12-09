@@ -22,6 +22,7 @@
 ##############################################################################
 
 from osv import osv, fields
+import random
 
 class product_category(osv.osv):
     _inherit = "product.category"
@@ -68,12 +69,20 @@ class product_product(osv.osv):
         'type_prod':fields.selection([('materiel','Matériel'),('fourniture','Fourniture Achetable'),('site','Site')], 'Type de Produit'),
         'openstc_reservable':fields.boolean('Reservable', help='Indicates if this ressource can be reserved or not by tiers'),
         'openstc_maintenance':fields.boolean('Maintenance ?', help='Indicates if this ressource can be associated to contracts for maintenance'),
-        'color':fields.char('Color', size=16),
-         }
-    _defaults = {
-        'openstc_reservable':lambda *a: False,
-        'openstc_maintenance':lambda *a: False,
+        'color': fields.char('Color', size=16, required=True),
     }
+
+    def default_color(self, cr, uid, context=None):
+        r = lambda: random.randint(0,255)
+        return '#%02X%02X%02X' % (r(),r(),r())
+
+    _defaults = {
+        'openstc_reservable': lambda *a: False,
+        'openstc_maintenance': lambda *a: False,
+        'color': default_color
+    }
+
+
 
     def openbase_change_stock_qty(self, cr, uid, id, qty, context=None):
         loc_id = self.pool.get('ir.model.data').get_object_reference(cr, uid, 'stock','stock_location_stock')[1]
