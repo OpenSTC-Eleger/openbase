@@ -77,8 +77,27 @@ class service(osv.osv):
             'team_ids': fields.many2many('openstc.team', 'openstc_team_services_rel', 'service_id','team_id','Teams'),
             'site_ids':fields.many2many('openstc.site', 'openstc_site_services_rel', 'service_id', 'site_id', 'Sites'),
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
-
+            'partner_id':fields.many2one('res.partner','Partner'),
     }
+    
+    def link_with_partner(self, cr, uid, id, context=None):
+        service = self.browse(cr, uid, id, context=None)
+        user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
+        vals = {
+        'name':service.name,
+        'parent_id':user.company_id.partner_id and user.company_id.partner_id.id or False,
+        'is_department':True
+        }
+        partner_id = self.pool.get('res.partner').create(cr, uid, vals, context=context)
+        service.write({'partner_id':partner_id},context=context)
+        return True
+    
+    def create(self, cr, uid, vals, context=None):
+        ret = super(service, self).create(cr, uid, vals, context=context)
+        self.link_with_partner(cr, uid, ret, context=context)
+        return ret
+
+    
     _sql_constraints = [
         ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
     ]
@@ -171,6 +190,7 @@ class res_partner(osv.osv):
      _columns = {
         'activity_ids':fields.many2many('openstc.partner.activity','openstc_partner_activity_rel','partner_id','activity_id', 'Supplier Activities'),
         'type_id': fields.many2one('openstc.partner.type', 'Type'),
+        'is_department':fields.boolean('is department'),
 
  }
 res_partner()
@@ -190,7 +210,6 @@ class res_partner_address(osv.osv):
     def create(self, cr, uid, data, context=None):
         res = super(res_partner_address, self).create(cr, uid, data, context)
         self.create_account(cr, uid, [res], data, context)
-
         return res
 
 
