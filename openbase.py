@@ -79,7 +79,7 @@ class service(osv.osv):
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
             'partner_id':fields.many2one('res.partner','Partner'),
     }
-    
+
     def link_with_partner(self, cr, uid, id, context=None):
         service = self.browse(cr, uid, id, context=None)
         user = self.pool.get('res.users').browse(cr, uid, uid, context=context)
@@ -91,13 +91,13 @@ class service(osv.osv):
         partner_id = self.pool.get('res.partner').create(cr, uid, vals, context=context)
         service.write({'partner_id':partner_id},context=context)
         return True
-    
+
     def create(self, cr, uid, vals, context=None):
         ret = super(service, self).create(cr, uid, vals, context=context)
         self.link_with_partner(cr, uid, ret, context=context)
         return ret
 
-    
+
     _sql_constraints = [
         ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
     ]
@@ -185,14 +185,27 @@ openstc_partner_activity()
 
 
 class res_partner(osv.osv):
-     _inherit = "res.partner"
+    _inherit = "res.partner"
 
-     _columns = {
+    _columns = {
         'activity_ids':fields.many2many('openstc.partner.activity','openstc_partner_activity_rel','partner_id','activity_id', 'Supplier Activities'),
         'type_id': fields.many2one('openstc.partner.type', 'Type'),
         'is_department':fields.boolean('is department'),
+    }
 
- }
+    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
+        user_obj = self.pool.get('res.users')
+        group_obj = self.pool.get('res.groups')
+
+        #Return empty list if uid is belongs to hotel user : hotel_user
+        user = user_obj.read(cr, uid, uid,['groups_id'],context)
+        group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_USER'),('id','in',user['groups_id'])])
+        if set(user['groups_id']).intersection(set(group_ids)) :
+            group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_MANA'),('id','in',user['groups_id'])])
+            if not set(user['groups_id']).intersection(set(group_ids)) :
+                return []
+        return super(res_partner, self).search(cr, uid, args, offset, limit, order, context, count)
+
 res_partner()
 
 #claimer linked with a res.users
@@ -281,6 +294,9 @@ class groups(osv.osv):
         'perm_request_confirm' : fields.boolean('Demander la Confirmation'),
     }
 
+    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
+        return super(groups, self).search(cr, uid, args, offset, limit, order, context, count)
+
 groups()
 
 class users(osv.osv):
@@ -334,7 +350,7 @@ class users(osv.osv):
                 ret.append(''.join([x for x in unicodedata.normalize('NFKD',item) if unicodedata.category(x)[0] in ('L','N')]))
             ret = '-'.join(ret)
             return ret.lower()
-        
+
         """
         @param item: current item to retrieve children menuitem recursively
         @param menu_dict: dict of all of the menuitems to be assembled
@@ -370,11 +386,11 @@ class users(osv.osv):
                 item.update({'tag':parseToUrl(item['name']),
                              'tag_module':menu_data.get(item['id'],'')})
                 menu_dict.update({item['id']:item})
-            
+
             for item in menu:
                 if not item['parent_id']:
                     #retrieve only STC menus
-                    #if menu_stc and item['id'] in root_openstc_menu_dict.keys():    
+                    #if menu_stc and item['id'] in root_openstc_menu_dict.keys():
                     item.update({'children':get_menu_hierarchy(item, menu_dict),
                                  #'module':root_openstc_menu_map.get(root_openstc_menu_dict.get(item['id']))
                                  })
@@ -401,7 +417,7 @@ class users(osv.osv):
         return ret
 
     #get OpenSTC groups and retrieve the higher one the user has
-    def _get_current_group(self, cr, uid, ids, name ,args, context=None):
+    def _get_current_group(self, cr, uid, ids, name ,arg, context=None):
 
         def weight_hierarchy(current_group, groups, i=0):
             current_group['hierarchy_sequence'] = i + 1
@@ -412,7 +428,7 @@ class users(osv.osv):
         ret = {}.fromkeys(ids,False)
         #first, order groups by their 'weight' in hierarchy
         #i begin by getting all openstc Groups
-        groups_id = self.pool.get("res.groups").search(cr, uid, [('name','ilike','openstc')], context=context)
+        groups_id = self.pool.get("res.groups").search(cr, uid, [('name','ilike',arg)], context=context)
         groups = self.pool.get("res.groups").read(cr, uid, groups_id, ['name','implied_ids'])
         #and i order them, starting with lower of them (the ones which don't implied others)
         first_groups = [g for g in groups if not g['implied_ids'] or not intersect(g['implied_ids'], groups_id)]
@@ -480,7 +496,8 @@ class users(osv.osv):
             'isDST' : fields.function(_get_group, arg="DIRE", method=True,type='boolean', store=False), #DIRECTOR group
             'isManager' : fields.function(_get_group, arg="MANA", method=True,type='boolean', store=False), #MANAGER group
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
-            'current_group':fields.function(_get_current_group, method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
+            'current_group':fields.function(_get_current_group, arg="openstc", method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
+            'openresa_group':fields.function(_get_current_group,  arg="openresa", method=True, string="OpenResa higher group", help="The OpenResa higher group of the user"),
     }
     _defaults = {
         'context_tz' : lambda self, cr, uid, context : 'Europe/Paris',
@@ -595,9 +612,9 @@ class users(osv.osv):
                                      'firstname' : officer['firstname'],
                                      'complete_name' : ("%s %s" % (officer['firstname'], officer['name'])).strip(),
                                      'teams': officer['team_ids']}
-        
-        #we can't use domain as [('groups_id.code','!=','DIRE')] 
-        #because each user has many groups, so all of them will have at least one group matching this criteria 
+
+        #we can't use domain as [('groups_id.code','!=','DIRE')]
+        #because each user has many groups, so all of them will have at least one group matching this criteria
         not_dst_ids = self.search(cr, uid, [('groups_id.code','=','DIRE')],context=context)
         search_criterion = [('id','!=','1')]
         if not_dst_ids:
