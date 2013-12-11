@@ -293,10 +293,6 @@ class groups(osv.osv):
         'code': fields.char('Code', size=128),
         'perm_request_confirm' : fields.boolean('Demander la Confirmation'),
     }
-
-    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
-        return super(groups, self).search(cr, uid, args, offset, limit, order, context, count)
-
 groups()
 
 class users(osv.osv):
