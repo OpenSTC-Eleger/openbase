@@ -70,6 +70,7 @@ class product_product(osv.osv):
         'openstc_reservable':fields.boolean('Reservable', help='Indicates if this ressource can be reserved or not by tiers'),
         'openstc_maintenance':fields.boolean('Maintenance ?', help='Indicates if this ressource can be associated to contracts for maintenance'),
         'color': fields.char('Color', size=16, required=True),
+        'block_booking':fields.boolean('Block booking'),
     }
 
     def default_color(self, cr, uid, context=None):
@@ -79,7 +80,8 @@ class product_product(osv.osv):
     _defaults = {
         'openstc_reservable': lambda *a: False,
         'openstc_maintenance': lambda *a: False,
-        'color': default_color
+        'color': default_color,
+        'block_booking':True,
     }
 
 
