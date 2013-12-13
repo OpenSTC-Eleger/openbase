@@ -200,10 +200,10 @@ class res_partner(osv.osv):
         #Return empty list if uid is belongs to hotel user : hotel_user
         user = user_obj.read(cr, uid, uid,['groups_id'],context)
         group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_USER'),('id','in',user['groups_id'])])
-        if set(user['groups_id']).intersection(set(group_ids)) :
+        if group_ids :
             group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_MANA'),('id','in',user['groups_id'])])
-            if not set(user['groups_id']).intersection(set(group_ids)) :
-                return []
+            if not group_ids :
+                args = [('id','=',0)]
         return super(res_partner, self).search(cr, uid, args, offset, limit, order, context, count)
 
 res_partner()
@@ -512,8 +512,29 @@ class users(osv.osv):
                 self.write(cr, uid, user['id'], {'service_ids':[(4,user['service_id'][0])]})
         return True
 
+    """
+    @param id: id of user to link with a new res.partner.address
+    @note: if new user is an agent (service_id is set), create res.partner.address to it
+    """
+    def link_with_partner_address(self, cr, uid, id, context=None):
+        user = self.read(cr, uid, id, ['name','firstname', 'service_id', 'contact_id'],context=context)
+        if user['service_id']:
+            service = self.pool.get('openstc.service').read(cr, uid, user['service_id'][0], ['partner_id'], context=context)
+            
+            vals = {
+                'name': '%s%s' % (user['name'], user['firstname'] and ' ' + user['firstname'] or ''),
+                'partner_id':service['partner_id'][0]
+            }
+            #if user has already a contact (for now, we assume that a user has only one linked contact), 
+            #we update it, else, we create a new one 
+            if user['contact_id']:
+                self.write(cr, uid, id, {'contact_id':[(1,user['contact_id'][0],vals)]}, context=context)
+            else:
+                ret = self.pool.get('res.partner.address').create(cr, uid, vals, context=context)
+                self.write(cr, uid, id, {'contact_id':[(4,ret)]}, context=context)
+        return True
+
     def create(self, cr, uid, data, context={}):
-        #_logger.debug('create USER-----------------------------------------------');
         res = super(users, self).create(cr, uid, data, context)
 
         company_ids = self.pool.get('res.company').name_search(cr, uid, name='STC')
@@ -523,9 +544,9 @@ class users(osv.osv):
             data['company_id'] = 1;
         if data.has_key('isManager')!=False and data['isManager']==True :
             self.set_manager(cr, uid, [res], data, context)
-        #TODO
-        #else
+        
         self.check_service_id_and_service_ids(cr, uid, [res], context=context)
+        self.link_with_partner_address(cr, uid, res, context=context)
         return res
 
     def write(self, cr, uid, ids, data, context=None):
