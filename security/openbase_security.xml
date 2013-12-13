@@ -53,5 +53,51 @@
 	        <field eval="1" name="perm_create"/>
 	    </record>
 
+
+	   	<record model="ir.rule" id="equipment_rule_access">
+	        <field name="name">Equipment Rule Access </field>
+	        <field name="model_id" ref="model_openstc_equipment"/>
+	         <field name="domain_force">[('internal_booking','=','True'),'|',('service_bookable_ids.id','child_of',[s.id for s in user.service_ids]),('service_bookable_ids','=','False')]</field>
+	        <field name="groups" eval="[(6,0,[ref('hotel.group_hotel_user')])]" />
+	        <field eval="1" name="perm_unlink"/>
+	        <field eval="1" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="1" name="perm_create"/>
+	    </record>
+
+	   	<record model="ir.rule" id="equipment_rule_director_access">
+	        <field name="name">Equipment Director Rule Access </field>
+	        <field name="model_id" ref="model_openstc_equipment"/>
+	         <field name="domain_force">[(1,'=',1)]</field>
+	        <field name="groups" eval="[(6,0,[ref('hotel.group_hotel_manager')])]" />
+	        <field eval="1" name="perm_unlink"/>
+	        <field eval="1" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="1" name="perm_create"/>
+	    </record>
+
+	    <record model="ir.rule" id="site_rule_director_access">
+	        <field name="name">Site Rule Access </field>
+	        <field name="model_id" ref="model_openstc_site"/>
+	         <field name="domain_force">[('internal_booking','=','True'),'|',('service_bookable_ids.id','child_of',[s.id for s in user.service_ids]),('service_bookable_ids','=','False')]</field>
+	        <field name="groups" eval="[(6,0,[ref('hotel.group_hotel_user')])]" />
+	        <field eval="1" name="perm_unlink"/>
+	        <field eval="1" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="1" name="perm_create"/>
+	    </record>
+
+	   	<record model="ir.rule" id="equipment_rule_director_access">
+	        <field name="name">Site director  Rule Access </field>
+	        <field name="model_id" ref="model_openstc_site"/>
+	         <field name="domain_force">[(1,'=',1)]</field>
+	        <field name="groups" eval="[(6,0,[ref('hotel.group_hotel_manager')])]" />
+	        <field eval="1" name="perm_unlink"/>
+	        <field eval="1" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="1" name="perm_create"/>
+	    </record>
+
+
 	</data>
 </openerp>
