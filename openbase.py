@@ -193,19 +193,6 @@ class res_partner(osv.osv):
         'is_department':fields.boolean('is department'),
     }
 
-#    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
-#        user_obj = self.pool.get('res.users')
-#        group_obj = self.pool.get('res.groups')
-#
-#        #Return empty list if uid is belongs to hotel user : hotel_user
-#        user = user_obj.read(cr, uid, uid,['groups_id'],context)
-#        group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_USER'),('id','in',user['groups_id'])])
-#        if group_ids :
-#            group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_MANA'),('id','in',user['groups_id'])])
-#            if not group_ids :
-#                args = [('id','=',0)]
-#        return super(res_partner, self).search(cr, uid, args, offset, limit, order, context, count)
-
 res_partner()
 
 #claimer linked with a res.users
@@ -490,6 +477,7 @@ class users(osv.osv):
             'team_ids': fields.many2many('openstc.team', 'openstc_team_users_rel', 'user_id', 'team_id', 'Teams'),
             'manage_teams': fields.one2many('openstc.team', 'manager_id', "Teams"),
             'isDST' : fields.function(_get_group, arg="DIRE", method=True,type='boolean', store=False), #DIRECTOR group
+            'isResaManager' : fields.function(_get_group, arg="HOTEL_MANA", method=True,type='boolean', store=False),
             'isManager' : fields.function(_get_group, arg="MANA", method=True,type='boolean', store=False), #MANAGER group
             'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
             'current_group':fields.function(_get_current_group, arg="openstc", method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
@@ -520,13 +508,13 @@ class users(osv.osv):
         user = self.read(cr, uid, id, ['name','firstname', 'service_id', 'contact_id'],context=context)
         if user['service_id']:
             service = self.pool.get('openstc.service').read(cr, uid, user['service_id'][0], ['partner_id'], context=context)
-            
+
             vals = {
                 'name': '%s%s' % (user['name'], user['firstname'] and ' ' + user['firstname'] or ''),
                 'partner_id':service['partner_id'][0]
             }
-            #if user has already a contact (for now, we assume that a user has only one linked contact), 
-            #we update it, else, we create a new one 
+            #if user has already a contact (for now, we assume that a user has only one linked contact),
+            #we update it, else, we create a new one
             if user['contact_id']:
                 self.write(cr, uid, id, {'contact_id':[(1,user['contact_id'][0],vals)]}, context=context)
             else:
@@ -544,7 +532,7 @@ class users(osv.osv):
             data['company_id'] = 1;
         if data.has_key('isManager')!=False and data['isManager']==True :
             self.set_manager(cr, uid, [res], data, context)
-        
+
         self.check_service_id_and_service_ids(cr, uid, [res], context=context)
         self.link_with_partner_address(cr, uid, res, context=context)
         return res
