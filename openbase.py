@@ -193,18 +193,18 @@ class res_partner(osv.osv):
         'is_department':fields.boolean('is department'),
     }
 
-    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
-        user_obj = self.pool.get('res.users')
-        group_obj = self.pool.get('res.groups')
-
-        #Return empty list if uid is belongs to hotel user : hotel_user
-        user = user_obj.read(cr, uid, uid,['groups_id'],context)
-        group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_USER'),('id','in',user['groups_id'])])
-        if group_ids :
-            group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_MANA'),('id','in',user['groups_id'])])
-            if not group_ids :
-                args = [('id','=',0)]
-        return super(res_partner, self).search(cr, uid, args, offset, limit, order, context, count)
+#    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
+#        user_obj = self.pool.get('res.users')
+#        group_obj = self.pool.get('res.groups')
+#
+#        #Return empty list if uid is belongs to hotel user : hotel_user
+#        user = user_obj.read(cr, uid, uid,['groups_id'],context)
+#        group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_USER'),('id','in',user['groups_id'])])
+#        if group_ids :
+#            group_ids = group_obj.search(cr, uid, [('code','=','HOTEL_MANA'),('id','in',user['groups_id'])])
+#            if not group_ids :
+#                args = [('id','=',0)]
+#        return super(res_partner, self).search(cr, uid, args, offset, limit, order, context, count)
 
 res_partner()
 
