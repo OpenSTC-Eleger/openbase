@@ -66,7 +66,6 @@
 	    </record>
 
 
-
 	    <record model="ir.rule" id="site_user_rule_user_access">
 	        <field name="name">Site User Rule Access </field>
 	        <field name="model_id" ref="model_openstc_site"/>
@@ -78,7 +77,7 @@
 	        <field eval="1" name="perm_create"/>
 	    </record>
 
-	   	<record model="ir.rule" id="site_director_rule_access">
+	   	<record model="ir.rule" id="equipment_director_rule_access">
 	        <field name="name">Equipment Director Rule Access </field>
 	        <field name="model_id" ref="model_openstc_equipment"/>
 	         <field name="domain_force">[(1,'=',1)]</field>
@@ -89,7 +88,7 @@
 	        <field eval="1" name="perm_create"/>
 	    </record>
 
-	   	<record model="ir.rule" id="equipment_director_rule_access">
+	   	<record model="ir.rule" id="site_director_rule_access">
 	        <field name="name">Site Director Rule Access </field>
 	        <field name="model_id" ref="model_openstc_site"/>
 	         <field name="domain_force">[(1,'=',1)]</field>
@@ -99,29 +98,6 @@
 	        <field eval="1" name="perm_read"/>
 	        <field eval="1" name="perm_create"/>
 	    </record>
-
-	   	<!-- <record model="ir.rule" id="res_partner_user_rule_access">
-	        <field name="name">Partner User Rule Access </field>
-	        <field name="model_id" ref="model_res_partner"/>
-	         <field name="domain_force">??</field>
-	        <field name="groups" eval="[(6,0,[ref('hotel.group_hotel_user')])]" />
-	        <field eval="1" name="perm_unlink"/>
-	        <field eval="1" name="perm_write"/>
-	        <field eval="1" name="perm_read"/>
-	        <field eval="1" name="perm_create"/>
-	    </record>
-
-	   	<record model="ir.rule" id="res_partner_director_rule_access">
-	        <field name="name">Partner Director Rule Access </field>
-	        <field name="model_id" ref="model_res_partner"/>
-	         <field name="domain_force">[(1,'=',1)]</field>
-	        <field name="groups" eval="[(6,0,[ref('hotel.group_hotel_manager')])]" />
-	        <field eval="1" name="perm_unlink"/>
-	        <field eval="1" name="perm_write"/>
-	        <field eval="1" name="perm_read"/>
-	        <field eval="1" name="perm_create"/>
-	    </record>
- 	-->
 
 	</data>
 </openerp>
