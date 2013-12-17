@@ -21,14 +21,7 @@
 <openerp>
     
 	<data noupdate="1">
-	    <record id="openstc_achat_stock_smtp_server" model="ir.mail_server">
-	        <field name="name">Default SMTP SICLIC Server</field>
-	        <field name="smtp_host">mta.saas.siclic.fr</field>
-	        <field name="smtp_port">25</field>
-	        <field name="smtp_encryption">none</field>
-	        <field name="sequence">5</field>
-	    </record>
-	    
+    
 	    
 	    <!--  GROUPS -->
 
