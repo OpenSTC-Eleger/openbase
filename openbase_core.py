@@ -41,7 +41,7 @@ class OpenbaseCore(osv.Model):
         groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
 
         for record in self.browse(cr, uid, ids, context=context):
-            ret.update({record.id:','.join([key for key,func in self._actions_to_eval[self._name].items() if func(self,cr,uid,record,groups_code)])})
+            ret.update({record.id:[key for key,func in self._actions_to_eval[self._name].items() if func(self,cr,uid,record,groups_code)]})
         return ret
     
     _columns_to_add = {
