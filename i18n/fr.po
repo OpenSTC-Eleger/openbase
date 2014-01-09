@@ -1,0 +1,499 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+#	* openbase
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 6.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-06-05 07:55+0000\n"
+"PO-Revision-Date: 2013-06-05 07:55+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+
+
+#. module: openbase
+#: view:openstc.partner.type:0
+#: view:openstc.partner.type.type:0
+msgid "Demandeur type"
+msgstr "Demandeur type"
+
+#. module: openbase
+#: field:res.users,birth_date:0
+msgid "Date de naissance"
+msgstr "Date de naissance"
+
+
+#. module: openbase
+#: field:openstc.equipment,immat:0
+msgid "Imatt"
+msgstr "Imatt"
+
+
+#. module: openbase
+#: field:openstc.equipment,cv:0
+msgid "CV"
+msgstr "CV"
+
+#. module: openbase
+#: field:openstc.site,width:0
+msgid "Width"
+msgstr "largeur"
+
+
+
+#. module: openbase
+#: field:openstc.site,surface:0
+msgid "Surface"
+msgstr "Surface"
+
+
+#. module: openbase
+#: model:res.groups,name:openstc.openstc_manager
+msgid "OpenSTC/Chef de service"
+msgstr "OpenSTC/Chef de service"
+
+
+#. module: openbase
+#: field:openstc.equipment,technical_vehicle:0
+msgid "Technical vehicle"
+msgstr "Technical vehicle"
+
+
+
+#. module: openbase
+#: field:openstc.partner.type,claimers:0
+msgid "Claimers"
+msgstr "Claimers"
+
+#. module: openbase
+#: model:res.groups,name:openstc.openstc_agent
+msgid "OpenSTC/Agent"
+msgstr "OpenSTC/Agent"
+
+#. module: openbase
+#: sql_constraint:res.groups:0
+msgid "The name of the group must be unique !"
+msgstr "Le nom du groupe doit être unique !"
+
+#. module: openbase
+#: view:product.product:0
+msgid "Collectivities"
+msgstr "Collectivités"
+
+
+#. module: openbase
+#: selection:product.product,etat:0
+msgid "Neuf"
+msgstr "Neuf"
+
+#. module: openbase
+#: selection:product.product,etat:0
+msgid "Moyen"
+msgstr "Moyen"
+
+#. module: openbase
+#: field:res.users,firstname:0
+msgid "firstname"
+msgstr "firstname"
+
+#. module: openbase
+#. module: openbase
+#: field:openstc.ask,partner_type:0
+msgid "Partner Type"
+msgstr "Partner Type"
+
+#. module: openbase
+#: field:hotel.reservation,name:0
+msgid "Nom Manifestation"
+msgstr "Nom Manifestation"
+
+#. module: openbase
+#: view:hotel.folio:0
+msgid "Calculer"
+msgstr "Calculer"
+
+#. module: openbase
+#: constraint:product.product:0
+msgid "Error: Invalid ean code"
+msgstr "Erreur : Code EAN invalide"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_openstc_equipment
+msgid "openstc.equipment"
+msgstr "openstc.equipment"
+
+#. module: openbase
+#: field:openstc.equipment,usage:0
+msgid "Usage"
+msgstr "Usage"
+
+#. module: openbase
+#: view:res.users:0
+msgid "Email Preferences"
+msgstr "Préférences de messagerie électronique"
+
+#. module: openbase
+#: view:product.product:0
+msgid "Suppliers"
+msgstr "Fournisseurs"
+
+#. module: openbase
+#: field:openstc.site,long:0
+msgid "Longitude"
+msgstr "Longitude"
+
+#. module: openbase
+#: field:openstc.team,name:0
+msgid "name"
+msgstr "name"
+
+#. module: openbase
+#: field:openstc.equipment,marque:0
+msgid "Marque"
+msgstr "Marque"
+
+#. module: openbase
+#: view:res.company:0
+msgid "Préférences de la Collectivité"
+msgstr "Préférences de la Collectivité"
+
+#. module: openbase
+#: field:openstc.site,lat:0
+msgid "Latitude"
+msgstr "Latitude"
+
+#. module: openbase
+#: field:openstc.equipment,type:0
+#: field:openstc.site,type:0
+#: field:res.partner,type_id:0
+msgid "Type"
+msgstr "Type"
+
+#. module: openbase
+#: field:product.category,cat_id:0
+msgid "category"
+msgstr "category"
+
+#. module: openbase
+#: model:res.groups,name:openstc.openstc_dst
+msgid "OpenSTC/DST"
+msgstr "OpenSTC/DST"
+
+#. module: openbase
+#: help:product.product,openstc_maintenance:0
+msgid "Indicates if this ressource can be associated to contracts for maintenance"
+msgstr "Indique si cette ressource peut-être associée a des contrats de maintenance"
+
+#. module: openbase
+#: field:res.users,position:0
+msgid "Grade"
+msgstr "Grade"
+
+#. module: openbase
+#: field:openstc.service,technical:0
+msgid "Technical service"
+msgstr "Service technique"
+
+#. module: openbase
+#: field:product.product,type_prod:0
+msgid "Type de Produit"
+msgstr "Type de Produit"
+
+#: field:res.users,isDST:0
+#: field:res.users,isManager:0
+#: field:openstc.team,free_user_ids:0
+msgid "unknown"
+msgstr "Inconnu"
+
+#. module: openbase
+#: model:res.groups,name:openstc.openstc_accueil
+msgid "OpenSTC/Accueil"
+msgstr "OpenSTC/Accueil"
+
+#. module: openbase
+#: field:res.users,post:0
+msgid "Post"
+msgstr "Fonction"
+
+#. module: openbase
+#: selection:product.product,etat:0
+msgid "Mauvais"
+msgstr "Mauvais"
+
+#. module: openbase
+#: field:openstc.equipment,km:0
+#: field:project.task,km:0
+msgid "Km"
+msgstr "Km"
+
+#. module: openbase
+#: field:openstc.ask,site_details:0
+#: field:project.project,site_details:0
+msgid "Précision sur le site"
+msgstr "Précision sur le site"
+
+#. module: openbase
+#: field:openstc.site,lenght:0
+msgid "Lenght"
+msgstr "Longueur"
+
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_res_users
+msgid "res.users"
+msgstr "res.users"
+
+
+#. module: openbase
+#: field:openstc.task.category,unit:0
+msgid "Unit"
+msgstr "Unité"
+
+#. module: openbase
+#: sql_constraint:purchase.order:0
+#: sql_constraint:sale.order:0
+msgid "Order Reference must be unique per Company!"
+msgstr "La référence de commande doit être unique par société !"
+
+#. module: openbase
+#: view:product.product:0
+msgid "Information"
+msgstr "Information"
+
+#. module: openbase
+#: field:openstc.service,user_ids:0
+#: field:openstc.team,user_ids:0
+msgid "Users"
+msgstr "Users"
+
+#. module: openbase
+#: field:openstc.equipment,complete_name:0
+#: field:openstc.partner.type,name:0
+#: field:openstc.service,favcolor:0
+#: field:openstc.service,name:0
+#: field:openstc.site,complete_name:0
+#: field:openstc.site,name:0
+#: field:openstc.site.type,name:0
+#: field:res.users,complete_name:0
+msgid "Name"
+msgstr "Nom"
+
+#. module: openbase
+#: field:res.users,service_id:0
+msgid "Service    "
+msgstr "Service    "
+
+#. module: openbase
+#: field:openstc.site,site_parent_id:0
+#: help:openstc.site,site_parent_id:0
+msgid "Site parent"
+msgstr "Site parent"
+
+#. module: openbase
+#: field:openstc.equipment,service_ids:0
+#: view:openstc.service:0
+#: field:openstc.site,service_ids:0
+#: field:openstc.team,service_ids:0
+#: field:res.users,service_ids:0
+msgid "Services"
+msgstr "Services"
+
+#. module: openbase
+#: field:res.users,lastname:0
+msgid "lastname"
+msgstr "lastname"
+
+#. module: openbase
+#: view:product.product:0
+msgid "Products"
+msgstr "Produits"
+
+#. module: openbase
+#: field:openstc.service,service_id:0
+msgid "Service Parent"
+msgstr "Service Parent"
+
+#. module: openbase
+#: field:product.product,service_technical_id:0
+msgid "Service Technique associé"
+msgstr "Service Technique associé"
+
+#. module: openbase
+#: model:res.groups,name:openstc.group_view_all_menus
+msgid "Voir tous les menus"
+msgstr "Voir tous les menus"
+
+#. module: openbase
+#: field:openstc.equipment,commercial_vehicle:0
+msgid "Commercial vehicle"
+msgstr "Commercial vehicle"
+
+#. module: openbase
+#: view:openstc.team:0
+msgid "Team"
+msgstr "Team"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_openstc_service
+msgid "openstc.service"
+msgstr "openstc.service"
+
+#. module: openbase
+#: constraint:res.users:0
+msgid "The chosen company is not in the allowed companies for this user"
+msgstr "La société choisie ne fait pas partie des sociétés autorisées pour cet utilisateur"
+
+
+#. module: openbase
+#: model:ir.actions.act_window,help:openstc.openstc_task_category_action2
+msgid "Here is a list of all your products classified by category. You can click a category to get the list of all products linked to this category or to a child of this category."
+msgstr "Ceci est la liste de tous les produits classés par catégorie. Vous pouvez cliquer sur une catégorie pour obtenir une liste de tous les produits attachés à cette catégorie ou obtenir tous les enfants de cette catégorie."
+
+#. module: openbase
+#: view:openstc.site:0
+msgid "Properties"
+msgstr "Proprietés"
+
+#. module: openbase
+#: model:res.groups,name:openstc.openstc_agent_non_technique
+msgid "OpenSTC/Agent Non Technique"
+msgstr "OpenSTC/Agent Non Technique"
+
+#. module: openbase
+#: view:openstc.equipment:0
+#: view:openstc.service:0
+#: view:openstc.site:0
+#: view:openstc.team:0
+msgid "General"
+msgstr "Géneral"
+
+#. module: openbase
+#: selection:product.product,etat:0
+msgid "Inutilisable"
+msgstr "Inutilisable"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_account_invoice
+msgid "Invoice"
+msgstr "Facture"
+
+#. module: openbase
+#: field:res.users,city_home:0
+msgid "City"
+msgstr "Ville"
+
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_product_product
+#: field:openstc.equipment,product_product_id:0
+msgid "Product"
+msgstr "Produit"
+
+#. module: openbase
+#: field:res.users,address_home:0
+msgid "Address"
+msgstr "Adresse"
+
+
+#. module: openbase
+#: field:res.users,arrival_date:0
+msgid "Date d'arrivée"
+msgstr "Date d'arrivée"
+
+#. module: openbase
+#: field:openstc.service,manager_id:0
+#: field:openstc.team,manager_id:0
+msgid "Manager"
+msgstr "Responsable"
+
+#. module: openbase
+#: view:report.project.task.user:0
+msgid "Company"
+msgstr "Société"
+
+#. module: openbase
+#: field:openstc.equipment,fat_material:0
+msgid "Fat"
+msgstr "Fat"
+
+#. module: openbase
+#: field:res.users,phone:0
+msgid "Phone Number"
+msgstr "Téléphone"
+
+
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_purchase_order
+msgid "Purchase Order"
+msgstr "Bon de commande"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_openstc_site
+msgid "openstc.site"
+msgstr "openstc.site"
+
+#. module: openbase
+#: view:openstc.employee:0
+msgid "Entreprise"
+msgstr "Entreprise"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_sale_order
+msgid "Sales Order"
+msgstr "Commande de ventes"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_product_category
+msgid "Product Category"
+msgstr "Catégorie de produits"
+
+#. module: openbase
+#: model:ir.ui.menu,name:openstc.menu_configuration
+#: view:res.company:0
+msgid "Configuration"
+msgstr "Configuration"
+
+#. module: openbase
+#: field:openstc.ask,partner_type_code:0
+msgid "Partner code"
+msgstr "Partner code"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_openstc_site_type
+msgid "openstc.site.type"
+msgstr "openstc.site.type"
+
+#. module: openbase
+#: model:ir.model,name:openstc.model_res_groups
+msgid "Access Groups"
+msgstr "Groupes d'accès"
+
+#. module: openbase
+#: field:openstc.equipment,small_material:0
+msgid "Small"
+msgstr "Small"
+
+#. module: openbase
+#: sql_constraint:account.invoice:0
+msgid "Invoice Number must be unique per Company!"
+msgstr "Le numéro de facture doit être unique par société !"
+
+
+#. module: openbase
+#: sql_constraint:res.users:0
+msgid "You can not have two users with the same login !"
+msgstr "Vous ne pouvez pas avoir deux utilisateurs avec le même identifiant !"
+
+#. module: openbase
+#: field:openstc.equipment,year:0
+msgid "Year"
+msgstr "Year"
+
+

@@ -20,6 +20,23 @@
 -->
 <openerp>
 	<data>
+
+       <record id="action_openstc_view_partner_type2" model="ir.actions.act_window">
+            <field name="name">Types d'organisation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openstc.partner.type</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+	    
+		<record id="action_openstc_view_site" model="ir.actions.act_window">
+            <field name="name">Sites</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openstc.site</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+	    
 	    
         <record id="action_openbase_view_team" model="ir.actions.act_window">
             <field name="name">Teams</field>
@@ -29,6 +46,91 @@
             <field name="view_mode">tree,form</field>
         </record>
 	    
+        
+		<record id="action_openstc_view_partner" model="ir.actions.act_window">
+            <field name="name">Organisations</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        
+       <record id="action_openstc_view_equipment" model="ir.actions.act_window">
+            <field name="name">Equipements</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openstc.equipment</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+       <record id="action_openstc_view_service" model="ir.actions.act_window">
+            <field name="name">Services</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openstc.service</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+		
+        <menuitem id="base.main_menu_openbase" name="OpenBase" sequence="11"/>
+        
+        <!-- Configuration -->
+   	    <menuitem id="menu_configuration"
+			name="Configuration"
+   			groups="openbase.openstc_dst,openbase.openstc_manager"			
+			parent="base.main_menu_openbase"
+			sequence="1"/>
+		
+   	    <!-- Configuration -->
+   	    <menuitem id="menu_configuration_openbase"
+			name="Général"
+			parent="menu_configuration"
+			groups="openbase.openstc_dst,openbase.openstc_manager"
+			sequence="1"/>
+		
+   	    <!--  Configuration/Partner -->
+   		<menuitem
+   		    action="action_openstc_view_partner"
+   			id="menu_openstc_partner"
+   			groups="openbase.openstc_dst"
+   			name="Organisations"
+   			parent="menu_configuration_openbase"
+   			sequence="1"/>
+
+   		<!--  Configuration/Service -->
+   		<menuitem action="action_openstc_view_service"
+   			id="menu_action_openstc_view_service"
+   			parent="menu_configuration_openbase"
+   			groups="openbase.openstc_dst,openbase.openstc_manager"
+   			sequence="2"/>
+
+   		<!--  Configuration/Site -->
+		<menuitem action="action_openstc_view_site"
+   			id="menu_action_openstc_view_site"
+   			parent="menu_configuration_openbase"
+   			groups="openbase.openstc_dst,openbase.openstc_manager"
+   			sequence="3"/>
+
+		<!--  Configuration/Team -->
+		<menuitem action="openbase.action_openbase_view_team"
+   			id="menu_action_openstc_view_teams"
+   			parent="menu_configuration_openbase"
+   			name="Equipes"
+   			groups="openbase.openstc_dst"
+   			sequence="4"/>
+
+		<!--  Configuration/Material -->
+		<menuitem action="action_openstc_view_equipment"
+   			id="menu_action_openstc_view_equipment"
+   			parent="menu_configuration_openbase"
+   			groups="openbase.openstc_dst,openbase.openstc_manager"
+   			sequence="5"/>
+		
+   		<menuitem action="action_openstc_view_partner_type2"
+   			id="menu_action_openstc_view_partner_type2"
+   			parent="menu_configuration_openbase"
+   			groups="openbase.openstc_dst"
+   			sequence="6"/>
+		
 	</data>
 	
 	

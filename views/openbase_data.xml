@@ -20,42 +20,46 @@
 -->
 <openerp>
     
-	<data noupdate="1">
-	    <record id="openstc_achat_stock_smtp_server" model="ir.mail_server">
-	        <field name="name">Default SMTP SICLIC Server</field>
-	        <field name="smtp_host">mta.saas.siclic.fr</field>
-	        <field name="smtp_port">25</field>
-	        <field name="smtp_encryption">none</field>
-	        <field name="sequence">5</field>
-	    </record>
-	    
+	<data noupdate="0">
+    
 	    
 	    <!--  GROUPS -->
 
+		<record model="ir.module.category" id="category_module_openstc">
+		    <field name="name">OpenSTC</field>
+		    <field name="sequence">41</field>
+		</record>
+		
+		<record model="ir.module.category" id="category_module_openbase">
+		    <field name="name">OpenBase</field>
+		    <field name="sequence">40</field>
+		</record>
+		
+
 		<record id="openstc_employee" model="res.groups">
 	        <field name="name">Employee</field>
-	        <field name="category_id" ref="base.module_category_project_management"/>
+	        <field name="category_id" ref="category_module_openbase"/>
 	        <field name="implied_ids" eval="[(4,ref('base.group_user'))]"/>
 	    </record>
 	
 	    <record id="openstc_accueil" model="res.groups">
 	        <field name="name">OpenSTC/Accueil</field>
 	        <field name="code">RCPT</field>
-	        <field name="category_id" ref="base.module_category_project_management"/>
+	        <field name="category_id" ref="category_module_openstc"/>
 	        <field name="implied_ids" eval="[(4, ref('openstc_employee'))]"/>
 	    </record>
 	
 	    <record id="openstc_agent" model="res.groups">
 	        <field name="name">OpenSTC/Agent</field>
 	        <field name="code">OFFI</field>
-	        <field name="category_id" ref="base.module_category_project_management"/>
+	        <field name="category_id" ref="category_module_openstc"/>
 	        <field name="implied_ids" eval="[(4, ref('openstc_employee')),(4, ref('stock.group_stock_user'))]"/>
 	    </record>
 	
 	     <record id="openstc_agent_non_technique" model="res.groups">
 	        <field name="name">OpenSTC/Agent Non Technique</field>
 	        <field name="code">PART</field>
-	        <field name="category_id" ref="base.module_category_project_management"/>
+	        <field name="category_id" ref="category_module_openstc"/>
 	        <field name="implied_ids" eval="[(4, ref('openstc_employee'))]"/>
 	    </record>
 	
@@ -69,21 +73,21 @@
 	
 	    <record id="openstc_qualifier" model="res.groups">
 	        <field name="name">Qualifier</field>
-	        <field name="category_id" ref="base.module_category_project_management"/>
+	        <field name="category_id" ref="category_module_openstc"/>
 	        <field name="implied_ids" eval="[(4, ref('openstc_employee'))]"/>
 	    </record>
 	
 	    <record id="openstc_dst" model="res.groups">
 	         <field name="name">OpenSTC/DST</field>
 	         <field name="code">DIRE</field>
-	         <field name="category_id" ref="base.module_category_project_management"/>
+	         <field name="category_id" ref="category_module_openstc"/>
 	         <field name="implied_ids" eval="[(4, ref('openstc_qualifier')),(4, ref('stock.group_stock_manager')),(4,ref('analytic.group_analytic_accounting')),(4,ref('account.group_account_user')),(4,ref('purchase.group_purchase_manager')),(4,ref('base.group_sale_manager'))]"/>
 	    </record>
 	
 	    <record id="openstc_manager" model="res.groups">
 	        <field name="name">OpenSTC/Chef de service</field>
 	        <field name="code">MANA</field>
-	        <field name="category_id" ref="base.module_category_project_management"/>
+	        <field name="category_id" ref="category_module_openstc"/>
 	        <field name="implied_ids" eval="[(4, ref('openstc_qualifier')),(4, ref('stock.group_stock_manager')),(4,ref('analytic.group_analytic_accounting')),(4,ref('account.group_account_user')),(4,ref('purchase.group_purchase_manager')),(4,ref('base.group_sale_manager'))]"/>
 	    </record>
 	
@@ -93,27 +97,35 @@
 			<field name="category_id" ref="base.module_category_project_management" />
 			<field name="implied_ids" eval="[(4,ref('analytic.group_analytic_accounting')),(4,ref('openstc_employee')),(4,ref('account.group_account_user')),(4,ref('purchase.group_purchase_manager')),(4, ref('stock.group_stock_user')),(4, ref('base.group_sale_manager')),(4,ref('base.group_sale_manager'))]" />
 		</record>
-	
-		<!--  <delete id="res_users_rule" model="ir.rule"/> -->
-		 <record model="ir.rule" id="base.res_users_rule">
-	        <field name="name">Override base user rule</field>
-	        <field name="model_id" ref="base.model_res_users" />
-	        <field name="global" eval="True" />
-	        <field name="domain_force">[(1,"=",1)]
-	        </field>
-		 </record>
 		 
  	<record id="openstc_prets_partner_type_asso" model="openstc.partner.type">
 	    <field name="name">Association</field>
 	    <field name="code">ASSOCIATION</field>
 	</record>
-		 
+	
+ 	<record id="openstc_prets_partner_type_part" model="openstc.partner.type">
+	    <field name="name">Particulier</field>
+	    <field name="code">PARTICULIER</field>
+	</record>
+ 		 
 	</data>
 	
 	<data>
-   		 <record model="res.groups" id="hotel.group_hotel_manager">
-		     <field name="implied_ids" eval="[(4,ref('hotel.group_hotel_user'))]"/>
-		 </record>
+
+	    <record model="product.category" id="openbase_product_categ_main_vehicle">
+	        <field name="name">Véhicules</field>
+	        <field name="is_vehicle" eval="True"/>
+	        <field name="is_equipment" eval="False"/>
+	    </record>
+	    <record model="product.category" id="openbase_product_categ_main_equipment">
+	        <field name="name">Matériels</field>
+	        <field name="is_vehicle" eval="False"/>
+	        <field name="is_equipment" eval="True"/>
+	    </record>
+	</data>
+	
+	<data>
+
 		 <!-- Groupe Factice pour cacher les menus aux utilisateurs (sauf l'admin) -->
 		<record id="group_view_all_menus" model="res.groups">
 			<field name="name">Voir tous les menus</field>

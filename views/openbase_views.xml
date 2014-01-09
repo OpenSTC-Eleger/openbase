@@ -21,6 +21,22 @@
 <openerp>
 	<data>
 	    
+	    	    
+		<!--  partner type -->
+		<record model="ir.ui.view" id="view_openstc_partner_form_type">
+            <field name="name">openstc.partner.type.form</field>
+            <field name="model">openstc.partner.type.type</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Organisation type">
+                	<group colspan="2" col="2">
+                		<field name="code" />
+                		<field name="name"/>
+                	</group>
+                </form>
+            </field>
+        </record>
+	    
 	    <!-- res_users  -->
     	<record id="view_users_form_inherit5" model="ir.ui.view">
             <field name="name">res.users.form.inhert</field>
@@ -83,6 +99,12 @@
                 		<field name="name"/>
                 		<field name="marque"/>
                 	</group>
+                	<group colspan="4" col="7">
+	                	<field name="internal_booking" colspan="2"/>
+	                	<field name="service_bookable_ids" colspan="5"/>
+	                	<field name="external_booking" colspan="2"/>
+	                	<field name="partner_type_bookable_ids" colspan="5"/>
+					</group>                	
                 </form>
             </field>
         </record>
@@ -99,6 +121,7 @@
                 </tree>
             </field>
         </record>
+		
 		
 		
 		<!-- service -->
@@ -163,10 +186,17 @@
 		                	</group>
 		                	<group colspan="2" col="2">
 		                    	<separator string="Properties" colspan="2"/>
-								<field name="lenght"/>
+								<field name="length"/>
 		                		<field name="width"/>
 		                		<field name="surface"/>
 		                	</group>
+       	                	<group colspan="4" col="7">
+			                	<field name="internal_booking" colspan="2"/>
+			                	<field name="service_bookable_ids" colspan="5"/>
+			                	<field name="external_booking" colspan="2"/>
+			                	<field name="partner_type_bookable_ids" colspan="5"/>
+			                	<field name="product_id"/>
+							</group>  
                 		</page>
                 	</notebook>
                 </form>
@@ -184,7 +214,7 @@
                		<field name="name"/>
                		<field name="type"/>
                		<field name="site_parent_id"/>
-               		<field name="lenght"/>
+               		<field name="length"/>
                		<field name="width"/>
                		<field name="surface"/>
                 </tree>
@@ -253,6 +283,24 @@
 	   		</field>
 	   	</record>
 	   	
+   	    
+   	    <!-- product category inheritance -->
+   	    <record model="ir.ui.view" id="view_openbase_product_category_form">
+   	        <field name="name">openbase.product.category.form</field>
+   	        <field name="model">product.category</field>
+   	        <field name="inherit_id" ref="product.product_category_form_view"/>
+   	        <field name="type">form</field>
+   	        <field name="arch" type="xml">
+   	            <field name="type" position="after">
+   	                <group colspan="2" col="4">
+   	                    <field name="is_vehicle"/>
+   	                    <field name="is_equipment"/>
+   	                </group>
+   	                
+   	            </field>
+   	        </field>
+   	    </record>
+   	    
       	    <!-- Vue Produits par défaut -->
 		<record model="ir.ui.view" id="view_openstock_fournitures_main_tree">
 			<field name="name">fourniture.product.tree.main</field>
