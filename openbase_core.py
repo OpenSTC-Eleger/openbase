@@ -47,6 +47,21 @@ class OpenbaseCore(osv.Model):
     _columns_to_add = {
         'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
         }
+    
+    """
+    @param uid: user who whants the metadata
+    @return: dict containing number of records (that user can see),
+            model fields definition (another dict with field as key and list as definition),
+            @todo: filters authorized for this user too ?
+            in example : {'count':55, 'fields':{'name':{'string':'Kapweeee', type:'char', 'required':True}}, 'saved_filters': [TODO]}
+    """
+    def getModelMetadata(self, cr, uid, context=None):
+        ret = {'count':0, 'fields':[]}
+        ret['count'] = self.search(cr, uid, [], count=True, context=context)
+        ret['fields'] = self.fields_get(cr, uid, context=context)
+        
+        return ret
+    
     def __init__(self, cr, pool):
         self._columns.update(self._columns_to_add)
         self._actions_to_eval.setdefault(self._name,{})
