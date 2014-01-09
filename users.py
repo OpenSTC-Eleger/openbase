@@ -19,11 +19,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
+from openbase_core import OpenbaseCore
 from osv import fields,osv
 #override of res.users to add accreditation and licenses of each user of the company
 
-class openstc_users_accreditation(osv.osv):
+class openstc_users_accreditation(OpenbaseCore):
     
     _name = 'openstc.users.accreditation'
     _columns = {
@@ -35,7 +35,7 @@ class openstc_users_accreditation(osv.osv):
 openstc_users_accreditation()
 
 
-class openstc_users_license(osv.osv):
+class openstc_users_license(OpenbaseCore):
     
     _name = 'openstc.users.license'
     _columns = {
@@ -46,7 +46,7 @@ class openstc_users_license(osv.osv):
     
 openstc_users_license()
 
-class res_users(osv.osv):
+class res_users(OpenbaseCore):
     _inherit = 'res.users'
     _columns = {
         'openstc_accreditation_ids':fields.one2many('openstc.users.accreditation.rel','user_id','Accreditation(s)'),
@@ -55,7 +55,7 @@ class res_users(osv.osv):
     
 res_users()
 
-class openstc_users_accreditation_rel(osv.osv):
+class openstc_users_accreditation_rel(OpenbaseCore):
     _name = 'openstc.users.accreditation.rel'
     _columns = {
         'user_id':fields.many2one('res.users','Owner'),
@@ -64,7 +64,7 @@ class openstc_users_accreditation_rel(osv.osv):
         }
 openstc_users_accreditation_rel()
 
-class openstc_users_license_rel(osv.osv):
+class openstc_users_license_rel(OpenbaseCore):
     _name = 'openstc.users.license.rel'
     _columns = {
         'user_id':fields.many2one('res.users','Owner'),
