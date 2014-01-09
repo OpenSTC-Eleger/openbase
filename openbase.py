@@ -21,7 +21,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-
+from openbase_core import OpenbaseCore
 from osv.orm import browse_record, browse_null
 from osv import osv, fields
 import re
@@ -42,7 +42,7 @@ def _test_params(params, keys):
                 param_ok = False
     return param_ok
 
-class service(osv.osv):
+class service(OpenbaseCore):
     _name = "openstc.service"
     _description = "openstc.service"
     _rec_name = "name"
@@ -54,18 +54,6 @@ class service(osv.osv):
         'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
         }
 
-    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
-        #default value: empty string for each id
-        ret = {}.fromkeys(ids,'')
-        groups_code = []
-        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
-
-        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
-        for record in self.browse(cr, uid, ids, context=context):
-            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
-            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
-        return ret
-
     _columns = {
             'name': fields.char('Name', size=128, required=True),
             'favcolor':  fields.char('Name', size=128),
@@ -76,7 +64,6 @@ class service(osv.osv):
             'user_ids': fields.one2many('res.users', 'service_id', "Users"),
             'team_ids': fields.many2many('openstc.team', 'openstc_team_services_rel', 'service_id','team_id','Teams'),
             'site_ids':fields.many2many('openstc.site', 'openstc_site_services_rel', 'service_id', 'site_id', 'Sites'),
-            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
             'partner_id':fields.many2one('res.partner','Partner'),
     }
 
@@ -108,7 +95,7 @@ service()
 # Partner
 #----------------------------------------------------------
 
-class openstc_partner_type(osv.osv):
+class openstc_partner_type(OpenbaseCore):
     _name = "openstc.partner.type"
     _description = "openstc.partner.type"
     _rec_name = "name"
@@ -120,23 +107,10 @@ class openstc_partner_type(osv.osv):
         'create': lambda self,cr,uid,record,groups_code: 'MANA' in groups_code or 'DIRE' in groups_code,
     }
 
-    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
-        #default value: empty string for each id
-        ret = {}.fromkeys(ids,'')
-        groups_code = []
-        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
-
-        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
-        for record in self.browse(cr, uid, ids, context=context):
-            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
-            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
-        return ret
-
     _columns = {
             'name': fields.char('Name', size=128, required=True),
             'code': fields.char('Code', size=32, required=True),
             'claimers': fields.one2many('res.partner', 'type_id', "Claimers"),
-            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
             'parent_id':fields.many2one('openstc.partner.type', 'Parent type'),
     }
     _sql_constraints = [
@@ -144,7 +118,7 @@ class openstc_partner_type(osv.osv):
     ]
 openstc_partner_type()
 
-class openstc_partner_activity(osv.osv):
+class openstc_partner_activity(OpenbaseCore):
     _name = "openstc.partner.activity"
 
     def _name_get_func(self, cr, uid, ids, name, args, context=None):
@@ -184,7 +158,7 @@ class openstc_partner_activity(osv.osv):
 openstc_partner_activity()
 
 
-class res_partner(osv.osv):
+class res_partner(OpenbaseCore):
     _inherit = "res.partner"
 
     _columns = {
@@ -196,7 +170,7 @@ class res_partner(osv.osv):
 res_partner()
 
 #claimer linked with a res.users
-class res_partner_address(osv.osv):
+class res_partner_address(OpenbaseCore):
     _description ='Partner Addresses st'
     _name = 'res.partner.address'
     _inherit = "res.partner.address"
@@ -270,7 +244,7 @@ class res_partner_address(osv.osv):
 
 res_partner_address()
 
-class groups(osv.osv):
+class groups(OpenbaseCore):
     _name = "res.groups"
     _description = "Access Groups"
     _inherit = "res.groups"
@@ -282,7 +256,7 @@ class groups(osv.osv):
     }
 groups()
 
-class users(osv.osv):
+class users(OpenbaseCore):
     _name = "res.users"
     _description = "res users st"
     _inherit = "res.users"
@@ -387,18 +361,6 @@ class users(osv.osv):
         'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
         }
 
-    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
-        #default value: empty string for each id
-        ret = {}.fromkeys(ids,'')
-        groups_code = []
-        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
-
-        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
-        for record in self.browse(cr, uid, ids, context=context):
-            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
-            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
-        return ret
-
     #get OpenSTC groups and retrieve the higher one the user has
     def _get_current_group(self, cr, uid, ids, name ,arg, context=None):
 
@@ -433,32 +395,6 @@ class users(osv.osv):
     _fields_names = {'service_names':'service_ids',
                     }
 
-    #@TODO: move this feature to template model (in another git branch)
-    def __init__(self, pool, cr):
-        #method to retrieve many2many fields with custom format
-        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
-            res = {}
-            if not isinstance(name, list):
-                name = [name]
-            for obj in self.browse(cr, uid, ids, context=context):
-                #for each field_names to read, retrieve their values
-                res[obj.id] = {}
-                for fname in name:
-                    #many2many browse_record field to map
-                    field_ids = obj[self._fields_names[fname]]
-                    val = []
-                    for item in field_ids:
-                        val.append([item.id,item.name_get()[0][1]])
-                    res[obj.id].update({fname:val})
-            return res
-
-        ret = super(users, self).__init__(pool,cr)
-        #add _field_names to fields definition of the model
-        for f in self._fields_names.keys():
-            #force name of new field with '_names' suffix
-            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-        return ret
-
     _columns = {
             'firstname': fields.char('firstname', size=128),
             'lastname': fields.char('lastname', size=128),
@@ -479,7 +415,6 @@ class users(osv.osv):
             'isDST' : fields.function(_get_group, arg="DIRE", method=True,type='boolean', store=False), #DIRECTOR group
             'isResaManager' : fields.function(_get_group, arg="HOTEL_MANA", method=True,type='boolean', store=False),
             'isManager' : fields.function(_get_group, arg="MANA", method=True,type='boolean', store=False), #MANAGER group
-            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
             'current_group':fields.function(_get_current_group, arg="openstc", method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
             'openresa_group':fields.function(_get_current_group,  arg="openresa", method=True, string="OpenResa higher group", help="The OpenResa higher group of the user"),
     }
@@ -745,7 +680,7 @@ class users(osv.osv):
 
 users()
 
-class team(osv.osv):
+class team(OpenbaseCore):
     _name = "openstc.team"
     _description = "team stc"
     _rec_name = "name"
@@ -787,47 +722,8 @@ class team(osv.osv):
         'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
         }
 
-    def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
-        #default value: empty string for each id
-        ret = {}.fromkeys(ids,'')
-        groups_code = []
-        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
-
-        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
-        for record in self.browse(cr, uid, ids, context=context):
-            #ret.update({inter['id']:','.join([key for key,func in self._actions.items() if func(self,cr,uid,inter)])})
-            ret.update({record.id:[key for key,func in self._actions.items() if func(self,cr,uid,record,groups_code)]})
-        return ret
-
     _fields_names = {'service_names':'service_ids',
                     'user_names':'user_ids'}
-
-    #@TODO: move this feature to template model (in another git branch)
-    def __init__(self, pool, cr):
-        #method to retrieve many2many fields with custom format
-        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
-            res = {}
-            if not isinstance(name, list):
-                name = [name]
-            for obj in self.browse(cr, uid, ids, context=context):
-                #for each field_names to read, retrieve their values
-                res[obj.id] = {}
-                for fname in name:
-                    #many2many browse_record field to map
-                    field_ids = obj[self._fields_names[fname]]
-                    val = []
-                    for item in field_ids:
-                        val.append([item.id,item.name_get()[0][1]])
-                    res[obj.id].update({fname:val})
-            return res
-
-        ret = super(team, self).__init__(pool,cr)
-        #add _field_names to fields definition of the model
-        for f in self._fields_names.keys():
-            #force name of new field with '_names' suffix
-            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-        return ret
-
 
     _columns = {
             'name': fields.char('name', size=128),
@@ -836,7 +732,6 @@ class team(osv.osv):
             'service_ids': fields.many2many('openstc.service', 'openstc_team_services_rel', 'team_id', 'service_id', 'Services'),
             'user_ids': fields.many2many('res.users', 'openstc_team_users_rel', 'team_id', 'user_id', 'Users'),
             'free_user_ids' : fields.function(_get_free_users, method=True,type='many2one', store=False),
-            'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
 
     }
     #Calculates the agents can be added to the team

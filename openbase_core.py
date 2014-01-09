@@ -21,10 +21,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-
 from osv import fields, osv
 #Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
-class openbaseCore(osv.Model):
+class OpenbaseCore(osv.Model):
     _auto = True
     _register = False # not visible in ORM registry, meant to be python-inherited only
     _transient = False # True in a TransientModel
@@ -38,9 +37,11 @@ class openbaseCore(osv.Model):
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
         ret = {}.fromkeys(ids,'')
-        #evaluation of each _actions item, if test returns True, adds key to actions possible for this record
+        groups_code = []
+        groups_code = [group.code for group in self.pool.get("res.users").browse(cr, uid, uid, context=context).groups_id if group.code]
+
         for record in self.browse(cr, uid, ids, context=context):
-            ret.update({record.id:','.join([key for key,func in self._actions_to_eval[self._name].items() if func(self,cr,uid,record)])})
+            ret.update({record.id:','.join([key for key,func in self._actions_to_eval[self._name].items() if func(self,cr,uid,record,groups_code)])})
         return ret
     
     _columns_to_add = {
@@ -70,44 +71,8 @@ class openbaseCore(osv.Model):
                     res[obj.id].update({fname:val})
             return res
         
-        super(openbaseCore,self).__init__(cr,pool)
+        super(OpenbaseCore,self).__init__(cr,pool)
          #add _field_names to fields definition of the model
         for f in self._fields_names.keys():
             #force name of new field with '_names' suffix
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-
-
-class opentest(openbaseCore):
-    _name= "openbase.test"
-    _columns = {
-        'name':fields.char('Name',size=128),
-        }
-    _actions = {
-        'print':lambda self,cr,uid,record: record.name <> 'test',
-        'read':lambda self,cr,uid,record:record.name <> 'test'
-        }
-opentest()
-
-class opentest2(openbaseCore):
-    
-    _name = "openbase.test2"
-    _columns = {
-        'name':fields.char('Name2',size=128),
-        'state':fields.selection([('draft','Draft'),('done','Done')], string="State"),
-        'test_ids':fields.many2many('openbase.test','openbase_test2_test_rel','test_id2','test_id','Tests')
-        }
-    
-    _fields_names = {'test_names':'test_ids'}
-    _actions = {
-        'delete':lambda self,cr,uid,record: record.state == 'draft',
-        }
-
-opentest2()
-
-class opentest_inherit(openbaseCore):
-    _inherit = "openbase.test2"
-    _actions = {
-        'create':lambda self,cr,uid,record: record.state == 'done',
-        'read':lambda self,cr,uid,record:True
-        }
-opentest_inherit()
