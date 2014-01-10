@@ -270,7 +270,7 @@ class users(OpenbaseCore):
         for record in reads:
             name = record['name']
             if record['firstname']:
-                name =  record['firstname'] + '  '+  name
+                name =  record['firstname'] + ' '+  name
             res.append((record['id'], name))
         return res
 
