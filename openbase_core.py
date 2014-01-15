@@ -56,10 +56,22 @@ class OpenbaseCore(osv.Model):
             in example : {'count':55, 'fields':{'name':{'string':'Kapweeee', type:'char', 'required':True}}, 'saved_filters': [TODO]}
     """
     def getModelMetadata(self, cr, uid, context=None):
-        ret = {'count':0, 'fields':[]}
+        ret = {'count':0, 'fields':{}}
         ret['count'] = self.search(cr, uid, [], count=True, context=context)
-        ret['fields'] = self.fields_get(cr, uid, context=context)
-        
+        #dict containing default keys to return, even if value is False (OpenERP does not return a key where the val is False)
+        mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False}
+        #list containing key to return if set
+        authorized_vals = ['selection','domain']
+        vals_to_retrieve = authorized_vals + mandatory_vals.keys()
+        fields = self.fields_get(cr, uid, context=context)
+        #for each field, returns all mandatory fields, and return authorized fields if set
+        for f, dict_vals in fields.items():
+            final_val = mandatory_vals.copy()
+            for key,val in dict_vals.items():
+                if key in vals_to_retrieve:
+                    final_val.update({key:val})
+            ret['fields'].update({f:final_val})
+
         return ret
     
     def __init__(self, cr, pool):
