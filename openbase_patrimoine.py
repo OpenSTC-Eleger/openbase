@@ -136,7 +136,7 @@ class equipment(OpenbaseCore):
 
     _columns = {
             'immat': fields.char('Imatt', size=128),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name',method=True, store={'openstc.equipment':[lambda self,cr,uid,ids,ctx={}:ids, ['name','categ_id'], 10]}),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name',method=True, select=True, store={'openstc.equipment':[lambda self,cr,uid,ids,ctx={}:ids, ['name','categ_id'], 10]}),
             'product_product_id': fields.many2one('product.product', 'Product', help="", ondelete="cascade"),
             #Service authorized to use equipment
             'service_ids':fields.many2many('openstc.service', 'openstc_equipment_services_rel', 'equipment_id', 'service_id', 'Services'),
@@ -147,7 +147,7 @@ class equipment(OpenbaseCore):
             #Partner types authorized to book equipment
             'partner_type_bookable_ids':fields.many2many('openstc.partner.type', 'openstc_equipment_bookable_partner_type_rel', 'equipment_id', 'partner_type_id', 'Services'),
             'external_booking':fields.boolean('External Booking', help="Means that this equipment can be booked by external partners"),
-            
+
             #Service owner
             'service':fields.many2one('openstc.service', 'Service'),
             'maintenance_service_ids': fields.many2many('openstc.service','openstc_equipement_maintenance_services_rel','equipment_id','service_id', 'Maintenance services'),
@@ -266,7 +266,7 @@ class Site(OpenbaseCore):
     _columns = {
 
             #'name': fields.char('Name', size=128, required=True),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, store={'openstc.site':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type'], 10]}),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, select=True, store={'openstc.site':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type'], 10]}),
             'code': fields.char('Code', size=32),
             'type': fields.many2one('openstc.site.type', 'Type', required=True),
             'service_ids':fields.many2many('openstc.service', 'openstc_site_services_rel', 'site_id', 'service_id', 'Services'),
@@ -290,7 +290,7 @@ class Site(OpenbaseCore):
     _defaults = {
         'type_prod':'site',
         }
-    
+
 #    def link_with_bookable(self, cr,uid, ids, context=None):
 #        sites = self.browse(cr, uid, ids, context=context)
 #        prod_obj = self.pool.get('product.product')
@@ -306,14 +306,14 @@ class Site(OpenbaseCore):
 #                prod_obj.openbase_change_stock_qty(cr, uid, prod_id, 1, context=context)
 #                site.write({'product_id':prod_id},context=context)
 #        return True
-#    
+#
 #    def unlink_bookable(self, cr, uid, ids, context=None):
 #        sites = self.browse(cr, uid, ids, context=context)
 #        for site in sites:
 #            if site.product_id:
 #                site.product_id.write({'active':False},context=context)
 #        return True
-#    
+#
 #    """
 #    override to make link with product_product
 #    by creating product_id if booking is set

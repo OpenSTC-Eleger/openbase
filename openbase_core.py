@@ -27,13 +27,14 @@ class OpenbaseCore(osv.Model):
     _auto = True
     _register = False # not visible in ORM registry, meant to be python-inherited only
     _transient = False # True in a TransientModel
-    
-    
+
+
     _actions_to_eval = {}
+    _fields = {}
     _fields_names_to_eval = {}
     _actions = {}
     _fields_names = {}
-    
+
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
         ret = {}.fromkeys(ids,'')
@@ -43,11 +44,11 @@ class OpenbaseCore(osv.Model):
         for record in self.browse(cr, uid, ids, context=context):
             ret.update({record.id:[key for key,func in self._actions_to_eval[self._name].items() if func(self,cr,uid,record,groups_code)]})
         return ret
-    
+
     _columns_to_add = {
         'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
         }
-    
+
     """
     @param uid: user who whants the metadata
     @return: dict containing number of records (that user can see),
@@ -63,9 +64,9 @@ class OpenbaseCore(osv.Model):
         #list containing key to return if set
         authorized_vals = ['selection','domain']
         vals_to_retrieve = authorized_vals + mandatory_vals.keys()
-        fields = self.fields_get(cr, uid, context=context)
+
         #for each field, returns all mandatory fields, and return authorized fields if set
-        for f, dict_vals in fields.items():
+        for f, dict_vals in self.fields_get(cr, uid, context=context).items():
             final_val = mandatory_vals.copy()
             for key,val in dict_vals.items():
                 if key in vals_to_retrieve:
@@ -73,12 +74,13 @@ class OpenbaseCore(osv.Model):
             ret['fields'].update({f:final_val})
 
         return ret
-    
+
     def __init__(self, cr, pool):
         self._columns.update(self._columns_to_add)
         self._actions_to_eval.setdefault(self._name,{})
         self._fields_names_to_eval.setdefault(self._name,{})
-        
+        self._fields.setdefault(self._name,{})
+
         self._actions_to_eval[self._name].update(self._actions)
         self._fields_names_to_eval[self._name].update(self._fields_names)
         #method to retrieve many2many fields with custom format
@@ -97,9 +99,25 @@ class OpenbaseCore(osv.Model):
                         val.append([item.id,item.name_get()[0][1]])
                     res[obj.id].update({fname:val})
             return res
-        
+
         super(OpenbaseCore,self).__init__(cr,pool)
          #add _field_names to fields definition of the model
         for f in self._fields_names.keys():
             #force name of new field with '_names' suffix
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
+
+    def fields_get(self, cr, uid, fields=None, context=None):
+        if len(self._fields[self._name]) == 0 :
+            self._fields[self._name] = super(OpenbaseCore, self).fields_get(cr, uid, fields, context)
+        return self._fields[self._name]
+
+    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
+        for s in args :
+            if 'name' in s :
+                #Search with complete_name
+                if 'complete_name' in self.fields_get(cr, uid, context=context):
+                    args.remove(s)
+                    s[0] = 'complete_name'
+                    args.extend([s])
+                    break
+        return super(OpenbaseCore, self).search(cr, uid, args, offset, limit, order, context, count)
