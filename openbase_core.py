@@ -60,9 +60,9 @@ class OpenbaseCore(osv.Model):
         ret = {'count':0, 'fields':{}}
         ret['count'] = self.search(cr, uid, [], count=True, context=context)
         #dict containing default keys to return, even if value is False (OpenERP does not return a key where the val is False)
-        mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False}
+        mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False, 'help':False}
         #list containing key to return if set
-        authorized_vals = ['selection','domain']
+        authorized_vals = ['selection','domain','context','string']
         vals_to_retrieve = authorized_vals + mandatory_vals.keys()
 
         #for each field, returns all mandatory fields, and return authorized fields if set
