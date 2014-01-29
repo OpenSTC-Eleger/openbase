@@ -62,7 +62,7 @@ class OpenbaseCore(osv.Model):
         #dict containing default keys to return, even if value is False (OpenERP does not return a key where the val is False)
         mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False, 'help':False}
         #list containing key to return if set
-        authorized_vals = ['selection','domain','context','string']
+        authorized_vals = ['selection','domain']
         vals_to_retrieve = authorized_vals + mandatory_vals.keys()
 
         #for each field, returns all mandatory fields, and return authorized fields if set
