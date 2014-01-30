@@ -58,12 +58,17 @@ class OpenbaseCore(osv.Model):
     """
     def getModelMetadata(self, cr, uid, context=None):
         ret = {'count':0, 'fields':{}}
-        ret['count'] = self.search(cr, uid, [], count=True, context=context)
+        #Comment count because special count from client (swif)
+        #ret['count'] = self.search(cr, uid, [], count=True, context=context)
         #dict containing default keys to return, even if value is False (OpenERP does not return a key where the val is False)
         mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False, 'help':False}
         #list containing key to return if set
         authorized_vals = ['selection','domain']
         vals_to_retrieve = authorized_vals + mandatory_vals.keys()
+
+        #Get model id
+        ret['model_id']  = self.pool.get('ir.model').search(cr, uid, [('model','=',self._name)])[0]
+
 
         #for each field, returns all mandatory fields, and return authorized fields if set
         for f, dict_vals in self.fields_get(cr, uid, context=context).items():
