@@ -767,4 +767,14 @@ class team(OpenbaseCore):
 
 team()
 
+class ir_model(osv.osv):
+    _name = 'ir.model'
+    _description = "Models"
+    _inherit = "ir.model"
+
+    def get_filters(self, cr, uid, model):
+        return self.pool.get('ir.filters').get_filters(cr, uid, model)
+
+ir_model()
+
 
