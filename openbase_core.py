@@ -111,10 +111,10 @@ class OpenbaseCore(osv.Model):
             #force name of new field with '_names' suffix
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
 
-    def fields_get(self, cr, uid, fields=None, context=None):
-        if len(self._fields[self._name]) == 0 :
-            self._fields[self._name] = super(OpenbaseCore, self).fields_get(cr, uid, fields, context)
-        return self._fields[self._name]
+#    def fields_get(self, cr, uid, fields=None, context=None):
+#        if len(self._fields[self._name]) == 0 :
+#            self._fields[self._name] = super(OpenbaseCore, self).fields_get(cr, uid, fields, context)
+#        return self._fields[self._name]
 
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         for s in args :
