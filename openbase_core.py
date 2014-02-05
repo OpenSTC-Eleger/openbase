@@ -122,7 +122,6 @@ class OpenbaseCore(osv.Model):
                 #Search with complete_name
                 if 'complete_name' in self.fields_get(cr, uid, context=context):
                     args.remove(s)
-                    s[0] = 'complete_name'
-                    args.extend([s])
+                    s = ('complete_name',s[1],s[2])
                     break
         return super(OpenbaseCore, self).search(cr, uid, args, offset, limit, order, context, count)
