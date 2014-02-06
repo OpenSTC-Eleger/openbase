@@ -20,11 +20,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
+from openbase_core import OpenbaseCore
 from osv import osv, fields
 import random
 
-class product_category(osv.osv):
+class product_category(OpenbaseCore):
     _inherit = "product.category"
     _columns = {
         'is_vehicle':fields.boolean('Is vehicle'),
@@ -60,7 +60,7 @@ class product_category(osv.osv):
 
 product_category()
 
-class product_product(osv.osv):
+class product_product(OpenbaseCore):
     _name = "product.product"
     _inherit = "product.product"
     _description = "Produit"
@@ -104,7 +104,7 @@ product_product()
 # Equipments
 #----------------------------------------------------------
 
-class equipment(osv.osv):
+class equipment(OpenbaseCore):
     _name = "openstc.equipment"
     _description = "openstc.equipment"
     #_inherit = 'product.product'
@@ -133,33 +133,6 @@ class equipment(osv.osv):
                     'maintenance_service_names':'maintenance_service_ids',
                     'service_bookable_names':'service_bookable_ids',
                     'partner_type_bookable_names':'partner_type_bookable_ids'}
-
-    #@TODO: move this feature to template model (in another git branch)
-    def __init__(self, pool, cr):
-        #method to retrieve many2many fields with custom format
-        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
-            res = {}
-            if not isinstance(name, list):
-                name = [name]
-            for obj in self.browse(cr, uid, ids, context=context):
-                #for each field_names to read, retrieve their values
-                res[obj.id] = {}
-                for fname in name:
-                    #many2many browse_record field to map
-                    field_ids = obj[self._fields_names[fname]]
-                    val = []
-                    for item in field_ids:
-                        val.append([item.id,item.name_get()[0][1]])
-                    res[obj.id].update({fname:val})
-            return res
-
-        ret = super(equipment, self).__init__(pool,cr)
-        #add _field_names to fields definition of the model
-        for f in self._fields_names.keys():
-            #force name of new field with '_names' suffix
-            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-        return ret
-
 
     _columns = {
             'immat': fields.char('Imatt', size=128),
@@ -219,7 +192,7 @@ equipment()
 # Sites
 #----------------------------------------------------------
 
-class site_type(osv.osv):
+class site_type(OpenbaseCore):
     _name = "openstc.site.type"
     _description = "openstc.site.type"
 
@@ -229,7 +202,7 @@ class site_type(osv.osv):
     }
 site_type()
 
-class Site(osv.osv):
+class Site(OpenbaseCore):
     _name = "openstc.site"
     _inherits = {'product.product':'product_id'}
     _description = "openstc.site"
@@ -289,33 +262,6 @@ class Site(osv.osv):
     _fields_names = {'service_names':'service_ids',
                 'service_bookable_names':'service_bookable_ids',
                 'partner_type_bookable_names':'partner_type_bookable_ids'}
-
-    
-    #@TODO: move this feature to template model (in another git branch)
-    def __init__(self, pool, cr):
-        #method to retrieve many2many fields with custom format
-        def _get_fields_names(self, cr, uid, ids, name, args, context=None):
-            res = {}
-            if not isinstance(name, list):
-                name = [name]
-            for obj in self.browse(cr, uid, ids, context=context):
-                #for each field_names to read, retrieve their values
-                res[obj.id] = {}
-                for fname in name:
-                    #many2many browse_record field to map
-                    field_ids = obj[self._fields_names[fname]]
-                    val = []
-                    for item in field_ids:
-                        val.append([item.id,item.name_get()[0][1]])
-                    res[obj.id].update({fname:val})
-            return res
-
-        ret = super(Site, self).__init__(pool,cr)
-        #add _field_names to fields definition of the model
-        for f in self._fields_names.keys():
-            #force name of new field with '_names' suffix
-            self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-        return ret
 
     _columns = {
 
