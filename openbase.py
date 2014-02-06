@@ -270,7 +270,7 @@ class users(OpenbaseCore):
         for record in reads:
             name = record['name']
             if record['firstname']:
-                name =  record['firstname'] + '  '+  name
+                name =  record['firstname'] + ' '+  name
             res.append((record['id'], name))
         return res
 
@@ -766,5 +766,15 @@ class team(OpenbaseCore):
        return True
 
 team()
+
+class ir_model(osv.osv):
+    _name = 'ir.model'
+    _description = "Models"
+    _inherit = "ir.model"
+
+    def get_filters(self, cr, uid, model):
+        return self.pool.get('ir.filters').get_filters(cr, uid, model)
+
+ir_model()
 
 
