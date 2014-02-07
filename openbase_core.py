@@ -22,6 +22,10 @@
 #
 #############################################################################
 from osv import fields, osv
+#import datetime
+#from datetime import datetime as dt, timedelta
+#from dateutil import *
+#from dateutil.tz import *
 #Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
 class OpenbaseCore(osv.Model):
     _auto = True
@@ -34,6 +38,8 @@ class OpenbaseCore(osv.Model):
     _fields_names_to_eval = {}
     _actions = {}
     _fields_names = {}
+
+    SQL_KEYWORDS = ['FIRSTDAYWEEK', 'LASTDAYWEEK',  'FIRSTDAYMONTH',  'LASTDAYMONTH', 'OVERMONTH', 'OUTDATED']
 
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
