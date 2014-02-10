@@ -107,7 +107,19 @@
 	    <field name="name">Particulier</field>
 	    <field name="code">PARTICULIER</field>
 	</record>
- 		 
+ 	
+ 	</data>
+ 	<data noupdate="1">
+	 	<record id="openbase_account_department" model="openstc.service">
+	 	    <field name="name">Comptabilité</field>
+	 	    <field name="code">COMPTA</field>
+	 	</record>
+ 		<record id="openbase_accountant_user" model="res.users">
+	 	    <field name="name">Comptable</field>
+	 	    <field name="login">compta</field>
+	 	    <field name="new_password">compta</field>
+	 	    <field name="service_id" ref="openbase_account_department"/>
+	 	</record>
 	</data>
 	
 	<data>
