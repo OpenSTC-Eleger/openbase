@@ -22,10 +22,10 @@
 #
 #############################################################################
 from osv import fields, osv
-#import datetime
-#from datetime import datetime as dt, timedelta
-#from dateutil import *
-#from dateutil.tz import *
+import datetime as dt
+from datetime import datetime, date, timedelta
+from dateutil import *
+from dateutil.tz import *
 #Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
 class OpenbaseCore(osv.Model):
     _auto = True
@@ -39,7 +39,8 @@ class OpenbaseCore(osv.Model):
     _actions = {}
     _fields_names = {}
 
-    SQL_KEYWORDS = ['FIRSTDAYWEEK', 'LASTDAYWEEK',  'FIRSTDAYMONTH',  'LASTDAYMONTH', 'OVERMONTH', 'OUTDATED']
+    #keywords to compute filter domain
+    DATE_KEYWORDS = ['FIRSTDAYWEEK', 'LASTDAYWEEK',  'FIRSTDAYMONTH',  'LASTDAYMONTH', 'OVERMONTH', 'OUTDATED']
 
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
@@ -123,12 +124,49 @@ class OpenbaseCore(osv.Model):
         return self._fields[self._name]
 
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
-        for s in args :
-            if 'name' in s :
-                #Search with complete_name
+        newargs = []
+        for id, domain  in enumerate(args) :
+            k, o, v = domain
+            #if domain is on field 'name'
+            if k == 'name' :
+                #if model has 'complete_name' field
                 if 'complete_name' in self.fields_get(cr, uid, context=context):
-                    args.remove(s)
-                    s[0] = 'complete_name'
-                    args.extend([s])
-                    break
-        return super(OpenbaseCore, self).search(cr, uid, args, offset, limit, order, context, count)
+                    #change domain on 'complete_name'
+                    domain[0] = 'complete_name'
+            #if domain contains special keyword
+            elif v in self.DATE_KEYWORDS :
+                #Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
+                domain[2] = self.get_date_from_keyword(v)
+            newargs.extend([domain])
+        return super(OpenbaseCore, self).search(cr, uid, newargs, offset, limit, order, context, count)
+
+
+    """
+    @param keyword: keyword to compute corresponding date
+    @return: return string date for domain search
+        domain is used to filter OpenBase object (ask (request), project (intervention)  :
+        * from current week
+        * from current month
+        * delayed (deadline spent)
+    """
+    def get_date_from_keyword(self, keyword):
+        val = ""
+        timeDtFrmt = "%Y-%m-%d %H:%M:%S"
+        today = date.today()
+        start_day_month = dt.datetime(today.year, today.month, 1)
+        dates = [today + dt.timedelta(days=i) for i in range(0 - today.weekday(), 7 - today.weekday())]
+        if keyword == 'FIRSTDAYWEEK':
+             return datetime.strftime(dates[0],timeDtFrmt)
+        elif keyword == 'LASTDAYWEEK':
+             return datetime.strftime(dates[6],timeDtFrmt)
+        elif keyword == 'FIRSTDAYMONTH':
+            return datetime.strftime(dt.datetime(today.year, today.month, 1),timeDtFrmt)
+        elif keyword == 'LASTDAYMONTH':
+            date_on_next_month = start_day_month + dt.timedelta(31)
+            start_next_month = dt.datetime(date_on_next_month.year, date_on_next_month.month, 1)
+            return datetime.strftime(start_next_month - dt.timedelta(1),timeDtFrmt)
+        elif keyword == 'OVERMONTH':
+             return datetime.strftime(start_day_month + dt.timedelta(31),timeDtFrmt)
+        elif keyword == 'OUTDATED':
+            return datetime.strftime(today,timeDtFrmt)
+        return val
