@@ -119,7 +119,7 @@ class OpenbaseCore(osv.Model):
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         newargs = []
         for id, domain  in enumerate(args) :
-            #Test if domain tuple = ('a','b','c')
+            #Test if domain tuple = ('key','operator','value')
             if len(domain) == 3 :
                 k, o, v = domain
                 #if domain is on field 'name'
