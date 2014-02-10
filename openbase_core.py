@@ -34,7 +34,6 @@ class OpenbaseCore(osv.Model):
 
 
     _actions_to_eval = {}
-    _fields = {}
     _fields_names_to_eval = {}
     _actions = {}
     _fields_names = {}
@@ -91,7 +90,6 @@ class OpenbaseCore(osv.Model):
         self._columns.update(self._columns_to_add)
         self._actions_to_eval.setdefault(self._name,{})
         self._fields_names_to_eval.setdefault(self._name,{})
-        self._fields.setdefault(self._name,{})
 
         self._actions_to_eval[self._name].update(self._actions)
         self._fields_names_to_eval[self._name].update(self._fields_names)
@@ -117,11 +115,6 @@ class OpenbaseCore(osv.Model):
         for f in self._fields_names.keys():
             #force name of new field with '_names' suffix
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-
-    def fields_get(self, cr, uid, fields=None, context=None):
-        if len(self._fields[self._name]) == 0 :
-            self._fields[self._name] = super(OpenbaseCore, self).fields_get(cr, uid, fields, context)
-        return self._fields[self._name]
 
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         newargs = []

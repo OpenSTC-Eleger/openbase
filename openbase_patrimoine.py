@@ -184,8 +184,6 @@ class equipment(OpenbaseCore):
          'internal_use': False,
         }
 
-
-
 equipment()
 
 #----------------------------------------------------------
@@ -291,49 +289,12 @@ class Site(OpenbaseCore):
         'type_prod':'site',
         }
 
-#    def link_with_bookable(self, cr,uid, ids, context=None):
-#        sites = self.browse(cr, uid, ids, context=context)
-#        prod_obj = self.pool.get('product.product')
-#        for site in sites:
-#            vals = {'active':True,
-#                    'name':site.name,
-#                    'type_prod':'site',
-#                }
-#            if site.product_id:
-#                site.product_id.write(vals,context=context)
-#            else:
-#                prod_id = prod_obj.create(cr, uid, vals,context=context)
-#                prod_obj.openbase_change_stock_qty(cr, uid, prod_id, 1, context=context)
-#                site.write({'product_id':prod_id},context=context)
-#        return True
-#
-#    def unlink_bookable(self, cr, uid, ids, context=None):
-#        sites = self.browse(cr, uid, ids, context=context)
-#        for site in sites:
-#            if site.product_id:
-#                site.product_id.write({'active':False},context=context)
-#        return True
-#
-#    """
-#    override to make link with product_product
-#    by creating product_id if booking is set
-#    """
+    """ @note: Override to force qty of product to 1 for openstc.site"""
     def create(self, cr, uid, vals, context=None):
         ret = super(Site, self).create(cr, uid, vals, context=context)
         site = self.read(cr, uid, ret, ['product_id'])
         self.pool.get('product.product').openbase_change_stock_qty(cr, uid, site['product_id'][0], 1, context=context)
         return ret
-#
-#    """
-#    override to make link with product_product
-#    bubble name changes to product_id
-#    and create product_id if booking is set and if not any product_id is already set
-#    """
-#    def write(self, cr, uid, ids, vals, context=None):
-#        ret = super(Site, self).write(cr, uid, ids, vals, context=context)
-#        for site in self.browse(cr, uid, ids, context=context):
-#            if site.internal_booking or site.external_booking:
-#                self.link_with_bookable(cr, uid, [site.id], context=context)
-#        return ret
+
 
 Site()
