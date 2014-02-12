@@ -117,23 +117,24 @@ class OpenbaseCore(osv.Model):
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
 
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
-        newargs = []
+        new_args = []
         for id, domain  in enumerate(args) :
             #Test if domain tuple = ('key','operator','value')
             if len(domain) == 3 :
+                #Get key, operator and domain
                 k, o, v = domain
                 #if domain is on field 'name'
                 if k == 'name' :
                     #if model has 'complete_name' field
-                    if 'complete_name' in self.fields_get(cr, uid, context=context):
+                    if 'complete_name' in self.fields_get(cr, uid, context=context).items():
                         #change domain on 'complete_name'
                         domain[0] = 'complete_name'
                 #if domain contains special keyword
                 elif v in self.DATE_KEYWORDS :
                     #Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
-            newargs.extend([domain])
-        return super(OpenbaseCore, self).search(cr, uid, newargs, offset, limit, order, context, count)
+            new_args.extend([domain])
+        return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
 
     """
