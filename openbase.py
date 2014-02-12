@@ -772,8 +772,9 @@ class ir_model(osv.osv):
     _description = "Models"
     _inherit = "ir.model"
 
-    def get_filters(self, cr, uid, model):
-        return self.pool.get('ir.filters').get_filters(cr, uid, model)
+    def get_filters(self, cr, uid, model,context=None):
+        model_obj = self.read(cr, uid, model,['model'], context)
+        return self.pool.get('ir.filters').get_filters(cr, uid, model_obj['model'])
 
 ir_model()
 
