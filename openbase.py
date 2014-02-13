@@ -779,3 +779,16 @@ class ir_model(osv.osv):
 ir_model()
 
 
+class ir_filters(osv.osv):
+    _name = 'ir.filters'
+    _description = "Filters"
+    _inherit = "ir.filters"
+
+    _columns = {
+            'description': fields.text('Description'),
+            'pre_recorded': fields.boolean('Pre recorded'),
+    }
+
+    ir_filters()
+
+
