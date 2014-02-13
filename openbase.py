@@ -789,6 +789,6 @@ class ir_filters(osv.osv):
             'pre_recorded': fields.boolean('Pre recorded'),
     }
 
-    ir_filters()
+ir_filters()
 
 
