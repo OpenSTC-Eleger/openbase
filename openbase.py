@@ -86,7 +86,7 @@ class service(OpenbaseCore):
 
 
     _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+        ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
     ]
 
 service()
@@ -114,7 +114,7 @@ class openstc_partner_type(OpenbaseCore):
             'parent_id':fields.many2one('openstc.partner.type', 'Parent type'),
     }
     _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+        ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
     ]
 openstc_partner_type()
 
