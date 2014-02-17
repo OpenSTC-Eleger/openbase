@@ -789,6 +789,11 @@ class ir_filters(osv.osv):
             'pre_recorded': fields.boolean('Pre recorded'),
     }
 
+    def get_filters(self, cr, uid, model):
+        act_ids = self.search(cr,uid,[('model_id','=',model),('user_id','=',uid)])
+        my_acts = self.read(cr, uid, act_ids, [])
+        return my_acts
+
 ir_filters()
 
 
