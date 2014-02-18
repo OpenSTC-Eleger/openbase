@@ -40,6 +40,9 @@ class OpenbaseCore(osv.Model):
 
     #keywords to compute filter domain
     DATE_KEYWORDS = ['FIRSTDAYWEEK', 'LASTDAYWEEK',  'FIRSTDAYMONTH',  'LASTDAYMONTH', 'OVERMONTH', 'OUTDATED']
+    DATE_FMT = "%Y-%m-%d"
+    DATE_TIME_FMT = "%Y-%m-%d %H:%M:%S"
+
 
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
@@ -118,21 +121,31 @@ class OpenbaseCore(osv.Model):
 
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         new_args = []
+        #fields = self.fields_get(cr, uid, context=context).items()
         for id, domain  in enumerate(args) :
             #Test if domain tuple = ('key','operator','value')
             if len(domain) == 3 :
                 #Get key, operator and domain
                 k, o, v = domain
+                #Get field's type
+                try:
+                    type = self._columns[k]._type
+                except (KeyError):
+                    type = None
+
                 #if domain is on field 'name'
                 if k == 'name' :
                     #if model has 'complete_name' field
-                    if 'complete_name' in self.fields_get(cr, uid, context=context).items():
+                    if 'complete_name' in self._columns:
                         #change domain on 'complete_name'
                         domain[0] = 'complete_name'
                 #if domain contains special keyword
                 elif v in self.DATE_KEYWORDS :
                     #Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
+                elif  type != None and type == 'datetime':
+                    #Format date with hours
+                    domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d %H:%M:%S")
             new_args.extend([domain])
         return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
