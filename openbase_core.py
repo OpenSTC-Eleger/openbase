@@ -144,8 +144,12 @@ class OpenbaseCore(osv.Model):
                     #Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
                 elif  type != None and type == 'datetime':
-                    #Format date with hours
-                    domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d %H:%M:%S")
+                    try:
+                        #Test if already format with hours
+                        datetime.strptime(v,self.DATE_TIME_FMT)
+                    except ValueError:
+                        #Format date with hours
+                        domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d %H:%M:%S")
             new_args.extend([domain])
         return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
