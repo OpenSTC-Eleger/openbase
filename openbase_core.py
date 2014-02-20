@@ -132,15 +132,8 @@ class OpenbaseCore(osv.Model):
                     type = self._columns[k]._type
                 except (KeyError):
                     type = None
-
-                #if domain is on field 'name'
-                if k == 'name' :
-                    #if model has 'complete_name' field
-                    if 'complete_name' in self._columns:
-                        #change domain on 'complete_name'
-                        domain[0] = 'complete_name'
                 #if domain contains special keyword
-                elif v in self.DATE_KEYWORDS :
+                if v in self.DATE_KEYWORDS :
                     #Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
                 elif  type != None and type == 'datetime':
