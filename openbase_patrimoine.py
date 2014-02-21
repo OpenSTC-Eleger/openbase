@@ -182,6 +182,7 @@ class equipment(OpenbaseCore):
     _defaults = {
          'type_prod':'materiel',
          'internal_use': False,
+         'type':'service'
         }
 
 equipment()
@@ -287,6 +288,7 @@ class Site(OpenbaseCore):
     }
     _defaults = {
         'type_prod':'site',
+        'type':'service',
         }
 
     """ @note: Override to force qty of product to 1 for openstc.site"""
