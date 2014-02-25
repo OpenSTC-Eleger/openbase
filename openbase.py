@@ -82,7 +82,7 @@ class service(OpenbaseCore):
 
 
     _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+        ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
     ]
 
 service()
@@ -110,7 +110,7 @@ class openstc_partner_type(OpenbaseCore):
             'parent_id':fields.many2one('openstc.partner.type', 'Parent type'),
     }
     _sql_constraints = [
-        ('code_uniq', 'unique (code)', '*code* / The code name must be unique !')
+        ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
     ]
 openstc_partner_type()
 
@@ -768,9 +768,28 @@ class ir_model(osv.osv):
     _description = "Models"
     _inherit = "ir.model"
 
-    def get_filters(self, cr, uid, model):
-        return self.pool.get('ir.filters').get_filters(cr, uid, model)
+    def get_filters(self, cr, uid, model,context=None):
+        model_obj = self.read(cr, uid, model,['model'], context)
+        return self.pool.get('ir.filters').get_filters(cr, uid, model_obj['model'])
 
 ir_model()
+
+
+class ir_filters(osv.osv):
+    _name = 'ir.filters'
+    _description = "Filters"
+    _inherit = "ir.filters"
+
+    _columns = {
+            'description': fields.text('Description'),
+            'pre_recorded': fields.boolean('Pre recorded'),
+    }
+
+    def get_filters(self, cr, uid, model):
+        act_ids = self.search(cr,uid,[('model_id','=',model),('user_id','=',uid)])
+        my_acts = self.read(cr, uid, act_ids, [])
+        return my_acts
+
+ir_filters()
 
 
