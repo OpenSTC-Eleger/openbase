@@ -172,3 +172,18 @@ class OpenbaseCore(osv.Model):
         elif keyword == 'OUTDATED':
             return datetime.strftime(today,timeDtFrmt)
         return val
+
+    def send_mail(self, cr, uid, id, vals, module, model, mail_templates):
+        email_obj = self.pool.get("email.template")
+        email_tmpl_id = 0
+        data_obj = self.pool.get('ir.model.data')
+        #first, retrieve template_id according to 'state' parameter
+        if vals.get('state','') in mail_templates.keys():
+            email_tmpl_id = data_obj.get_object_reference(cr, uid, module,mail_templates.get(vals.get('state')))[1]
+            if email_tmpl_id:
+                if isinstance(email_tmpl_id, list):
+                    email_tmpl_id = email_tmpl_id[0]
+                #generate mail and send it
+                mail_id = email_obj.send_mail(cr, uid, email_tmpl_id, id)
+                self.pool.get("mail.message").write(cr, uid, [mail_id], {})
+                self.pool.get("mail.message").send(cr, uid, [mail_id])
