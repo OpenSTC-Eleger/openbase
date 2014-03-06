@@ -22,6 +22,7 @@ import datetime as dt
 from datetime import datetime, date, timedelta
 from dateutil import *
 from dateutil.tz import *
+from copy import copy
 #Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
 class OpenbaseCore(osv.Model):
     _auto = True
@@ -130,7 +131,7 @@ class OpenbaseCore(osv.Model):
                     type = None
                 #if domain contains special keyword
                 if v in self.DATE_KEYWORDS :
-                    #Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
+                    #For records filters : Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
                 elif  type != None and type == 'datetime':
                     try:
@@ -139,7 +140,17 @@ class OpenbaseCore(osv.Model):
                     except ValueError:
                         #Format date with hours
                         domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d %H:%M:%S")
-            new_args.extend([domain])
+                        #if equal method in domain : build domain, example : [('date_to_compare', '>' ,'2014-03-05 00:00:00'), ('date_to_compare', '<' ,'2014-03-05 23:59:59')]
+                        if domain[1] ==  "=":
+                            #prepare first domain , example : [('date_to_compare', '>' ,'2014-03-05 00:00:00')]
+                            domain[1] = ">"
+                            #prepare second domain , example : [('date_to_compare', '<' ,'2014-03-05 23:59:59')]
+                            new_domain = copy(domain)
+                            new_domain[1] = "<"
+                            new_domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d 23:59:59")
+                            new_args.extend([new_domain])
+                new_args.extend([domain])
+
         return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
 
