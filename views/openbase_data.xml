@@ -98,6 +98,13 @@
 			<field name="implied_ids" eval="[(4,ref('analytic.group_analytic_accounting')),(4,ref('openstc_employee')),(4,ref('account.group_account_user')),(4,ref('purchase.group_purchase_manager')),(4, ref('stock.group_stock_user')),(4, ref('base.group_sale_manager')),(4,ref('base.group_sale_manager'))]" />
 		</record>
 
+
+		<record id="openstc_service_root" model="openstc.service">
+            <field name="name">Services Techniques Communaux</field>
+            <field name="code">OpenSTC</field>
+            <field name="technical">True</field>
+        </record>
+
  	<record id="openstc_prets_partner_type_asso" model="openstc.partner.type">
 	    <field name="name">Association</field>
 	    <field name="code">ASSOCIATION</field>
