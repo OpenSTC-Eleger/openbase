@@ -163,6 +163,7 @@ class res_partner(OpenbaseCore):
         'activity_ids':fields.many2many('openstc.partner.activity','openstc_partner_activity_rel','partner_id','activity_id', 'Supplier Activities'),
         'type_id': fields.many2one('openstc.partner.type', 'Type'),
         'is_department':fields.boolean('is department'),
+        'service_id': fields.one2many('openstc.service', 'partner_id', "Service"),
     }
 
 res_partner()

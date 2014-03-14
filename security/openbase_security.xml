@@ -23,7 +23,7 @@
 	<data noupdate="0">
 
 
-		<!--  <delete id="res_users_rule" model="ir.rule"/> -->
+
 		 <record model="ir.rule" id="base.res_users_rule">
 	        <field name="name">Override base user rule</field>
 	        <field name="model_id" ref="base.model_res_users" />
@@ -31,8 +31,87 @@
 	        <field name="domain_force">[(1,"=",1)]
 	        </field>
 		 </record>
+		<!-- RES_PARTNER RULES-->
+		 <record model="ir.rule" id="partner_rule_director_access">
+	        <field name="name">Partner Rule Director Access (DST)</field>
+	        <field name="model_id" ref="base.model_res_partner"/>
+	        <field name="groups" eval="[(6,0,[ref('openbase.openstc_dst'),ref('openbase.openstc_accueil')])]" />
+	        <field eval="0" name="perm_unlink"/>
+	        <field eval="0" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="0" name="perm_create"/>
+	    </record>
 
-	    <record model="ir.rule" id="service_rule_director_access">
+		 <record model="ir.rule" id="partner_rule_agent_technical_access">
+	        <field name="name">Partner Rule For technical agent</field>
+	        <field name="model_id" ref="base.model_res_partner"/>
+	        <field name="domain_force">[('technical_service_id','child_of',[g.id for g in user.service_ids])] </field>
+	        <field name="groups" eval="[(6,0,[ref('openbase.openstc_manager'),ref('openbase.openstc_agent'),ref('openbase.openstc_qualifier')])]" />
+	        <field eval="0" name="perm_unlink"/>
+	        <field eval="0" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="0" name="perm_create"/>
+	    </record>
+
+		 <record model="ir.rule" id="partner_rule_no_technical_agent_access">
+	        <field name="name">Partner Rule For no technical agent</field>
+	        <field name="model_id" ref="base.model_res_partner"/>
+	        <field name="domain_force">[('technical_service_id','in',[s.partner_id.technical_service_id.id for s in user.contact_id if s.partner_id and s.partner_id.technical_service_id.id]),('is_department','=',False)]</field>
+	        <field name="groups" eval="[(6,0,[ref('openstc_agent_non_technique')])]" />
+	        <field eval="0" name="perm_unlink"/>
+	        <field eval="0" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="0" name="perm_create"/>
+	    </record>
+		<!-- END RES_PARTNER RULES-->
+
+
+
+		<!-- RES_PARTNER_ADDRESS RULES-->
+		 <record model="ir.rule" id="partner_address_rule_director_access">
+	        <field name="name">Partner Address Rule Director Access (DST)</field>
+	        <field name="model_id" ref="base.model_res_partner_address"/>
+	        <field name="groups" eval="[(6,0,[ref('openbase.openstc_dst'),ref('openbase.openstc_accueil')])]" />
+	        <field eval="0" name="perm_unlink"/>
+	        <field eval="0" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="0" name="perm_create"/>
+	    </record>
+
+		 <record model="ir.rule" id="partner_address_rule_agent_technical_access">
+	        <field name="name">Partner Address Rule For technical agent</field>
+	        <field name="model_id" ref="base.model_res_partner_address"/>
+	        <field name="domain_force">[('partner_id','in',[s.partner_id.id for s in user.service_ids if s.partner_id and s.partner_id.id])] </field>
+	        <field name="groups" eval="[(6,0,[ref('openbase.openstc_manager'),ref('openbase.openstc_agent'),ref('openbase.openstc_qualifier')])]" />
+	        <field eval="0" name="perm_unlink"/>
+	        <field eval="0" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="0" name="perm_create"/>
+	    </record>
+
+		 <record model="ir.rule" id="partner_address_rule_no_technical_agent_access">
+	        <field name="name">Partner Address Rule For no technical agent</field>
+	        <field name="model_id" ref="base.model_res_partner_address"/>
+	        <field name="domain_force">[('partner_id','in',[c.partner_id.id for c in user.contact_id if c.partner_id and c.partner_id.id]),('user_id','=',user.id)]</field>
+	        <field name="groups" eval="[(6,0,[ref('openstc_agent_non_technique')])]" />
+	        <field eval="0" name="perm_unlink"/>
+	        <field eval="0" name="perm_write"/>
+	        <field eval="1" name="perm_read"/>
+	        <field eval="0" name="perm_create"/>
+	    </record>
+		<!-- END RES_PARTNER_ADDRESS RULES-->
+
+
+
+
+
+
+
+
+
+
+
+	     <!-- <record model="ir.rule" id="service_rule_director_access">
 	        <field name="name">Service Rule Director Access (DST)</field>
 	        <field name="model_id" ref="model_openstc_service"/>
 	        <field name="groups" eval="[(6,0,[ref('openbase.openstc_dst'),ref('hotel.group_hotel_manager'),ref('openbase.openstc_manager')])]" />
@@ -73,7 +152,7 @@
 	        <field eval="0" name="perm_write"/>
 	        <field eval="1" name="perm_read"/>
 	        <field eval="0" name="perm_create"/>
-	    </record>
+	    </record> -->
 
 	</data>
 </openerp>
