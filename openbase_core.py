@@ -149,7 +149,7 @@ class OpenbaseCore(osv.Model):
                             new_domain[1] = "<"
                             new_domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d 23:59:59")
                             new_args.extend([new_domain])
-                new_args.extend([domain])
+            new_args.extend([domain])
 
         return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
