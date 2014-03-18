@@ -133,6 +133,10 @@ class OpenbaseCore(osv.Model):
                 if v in self.DATE_KEYWORDS :
                     #For records filters : Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
+                #if model has 'complete_name' field
+                elif domain[0]== 'name' and 'complete_name' in self.fields_get(cr, uid, context=context):
+                    #change domain on 'complete_name'
+                    domain[0] = 'complete_name'
                 elif  type != None and type == 'datetime':
                     try:
                         #Test if already format with hours
