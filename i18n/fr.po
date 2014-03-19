@@ -15,7 +15,90 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Monday"
+msgstr "Lundi"
 
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Tuesday"
+msgstr "Mardi"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Wednesday"
+msgstr "Mercredi"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Thursday"
+msgstr "Jeudi"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Friday"
+msgstr "Vendredi"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Saturday"
+msgstr "Samedi"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Sunday"
+msgstr "Dimanche"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_type:0
+msgid "Daily"
+msgstr "Quotidienne"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_type:0
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_type:0
+msgid "Monthly"
+msgstr "Mensuelle"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_type:0
+msgid "Monthday"
+msgstr "N° du mois"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_type:0
+msgid "Monthweekday"
+msgstr "Jour de la semaine"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "First"
+msgstr "Premier"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Second"
+msgstr "Deuxième"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Third"
+msgstr "Troisième"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Fourth"
+msgstr "Quatrième"
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Last"
+msgstr "Dernier"
 
 #. module: openbase
 #: view:openstc.partner.type:0
