@@ -22,6 +22,7 @@ import datetime as dt
 from datetime import datetime, date, timedelta
 from dateutil import *
 from dateutil.tz import *
+from copy import copy
 #Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
 class OpenbaseCore(osv.Model):
     _auto = True
@@ -130,8 +131,12 @@ class OpenbaseCore(osv.Model):
                     type = None
                 #if domain contains special keyword
                 if v in self.DATE_KEYWORDS :
-                    #Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
+                    #For records filters : Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
+                #if model has 'complete_name' field
+                elif domain[0]== 'name' and 'complete_name' in self.fields_get(cr, uid, context=context):
+                    #change domain on 'complete_name'
+                    domain[0] = 'complete_name'
                 elif  type != None and type == 'datetime':
                     try:
                         #Test if already format with hours
@@ -139,7 +144,17 @@ class OpenbaseCore(osv.Model):
                     except ValueError:
                         #Format date with hours
                         domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d %H:%M:%S")
+                        #if equal method in domain : build domain, example : [('date_to_compare', '>' ,'2014-03-05 00:00:00'), ('date_to_compare', '<' ,'2014-03-05 23:59:59')]
+                        if domain[1] ==  "=":
+                            #prepare first domain , example : [('date_to_compare', '>' ,'2014-03-05 00:00:00')]
+                            domain[1] = ">"
+                            #prepare second domain , example : [('date_to_compare', '<' ,'2014-03-05 23:59:59')]
+                            new_domain = copy(domain)
+                            new_domain[1] = "<"
+                            new_domain[2] = datetime.strftime(datetime.strptime(v,self.DATE_FMT), "%Y-%m-%d 23:59:59")
+                            new_args.extend([new_domain])
             new_args.extend([domain])
+
         return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
 
@@ -172,3 +187,18 @@ class OpenbaseCore(osv.Model):
         elif keyword == 'OUTDATED':
             return datetime.strftime(today,timeDtFrmt)
         return val
+
+    def send_mail(self, cr, uid, id, vals, module, model, mail_templates):
+        email_obj = self.pool.get("email.template")
+        email_tmpl_id = 0
+        data_obj = self.pool.get('ir.model.data')
+        #first, retrieve template_id according to 'state' parameter
+        if vals.get('state','') in mail_templates.keys():
+            email_tmpl_id = data_obj.get_object_reference(cr, uid, module,mail_templates.get(vals.get('state')))[1]
+            if email_tmpl_id:
+                if isinstance(email_tmpl_id, list):
+                    email_tmpl_id = email_tmpl_id[0]
+                #generate mail and send it
+                mail_id = email_obj.send_mail(cr, uid, email_tmpl_id, id)
+                self.pool.get("mail.message").write(cr, uid, [mail_id], {})
+                self.pool.get("mail.message").send(cr, uid, [mail_id])

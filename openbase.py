@@ -108,6 +108,8 @@ class openstc_partner_type(OpenbaseCore):
             'code': fields.char('Code', size=32, required=True),
             'claimers': fields.one2many('res.partner', 'type_id', "Claimers"),
             'parent_id':fields.many2one('openstc.partner.type', 'Parent type'),
+            'sending_mail': fields.boolean('Sending mail', help="If checked, this partner will receive any automated email " \
+                                                  "notifications, such as the request has created"),
     }
     _sql_constraints = [
         ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
@@ -161,6 +163,7 @@ class res_partner(OpenbaseCore):
         'activity_ids':fields.many2many('openstc.partner.activity','openstc_partner_activity_rel','partner_id','activity_id', 'Supplier Activities'),
         'type_id': fields.many2one('openstc.partner.type', 'Type'),
         'is_department':fields.boolean('is department'),
+        'service_id': fields.one2many('openstc.service', 'partner_id', "Service"),
     }
 
 res_partner()
