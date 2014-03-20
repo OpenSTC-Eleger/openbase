@@ -215,7 +215,7 @@ class res_partner_address(OpenbaseCore):
         return res
 
     def create_account(self, cr, uid, ids, params, context):
-        if _test_params(params, ['login','password','name','email'])!= False :
+        if _test_params(params, ['login','password','name'])!= False :
 
             company_ids = self.pool.get('res.company').name_search(cr, uid, name='STC')
             if len(company_ids) == 1:
@@ -453,6 +453,7 @@ class users(OpenbaseCore):
             if user['contact_id']:
                 self.write(cr, uid, id, {'contact_id':[(1,user['contact_id'][0],vals)]}, context=context)
             else:
+                vals.update({'user_id':id})
                 ret = self.pool.get('res.partner.address').create(cr, uid, vals, context=context)
                 self.write(cr, uid, id, {'contact_id':[(4,ret)]}, context=context)
         return True
