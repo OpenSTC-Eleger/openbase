@@ -30,7 +30,22 @@ import netsvc
 import pytz
 from tools.translate import _
 
+"""
+@note: Base implementation of recurrence used for OpenSTC modules
+To use it with models, you can use inheritance : 
+    * create a new model inheriting of this one (using _inherit)
+    * override occurrence_ids to use a one2many on an existing model of your choice
+    * override method 'prepare_occurrences' to customize data to be written on the 'occurence_ids' records
+    * optionally, use _defaults attribute on your inheriting object to simplify setting of recurrence
+    * to generate occurrences, use the method 'generate_dates' of your object on your views or xmlrpc calls
 
+Or you can use this object directly (you'll use the objects defined here directly instead of custom ones): 
+    * put a many2one to you're own object relating to this model
+    * to generate occurrences, use the method 'generate_dates' of your many2one relating to this model
+    
+Or perhaps, a mixing of the two ways, such as using openbase.recurrence and an inheritance of openbase.recurrence.occurence,
+but be careful of what you're doing
+"""
 class openbase_recurrence(OpenbaseCore):
     _name = 'openbase.recurrence'
     WEIGHT_SELECTION = [('first','First'),('second','Second'),('third','Third'),('fourth','Fourth'),('last','Last')]

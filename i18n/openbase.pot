@@ -15,7 +15,90 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:monday
+msgid "Monday"
+msgstr ""
 
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Tuesday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Wednesday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Thursday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Friday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Saturday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_day:0
+msgid "Sunday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_type:0
+msgid "Daily"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_type:0
+msgid "Weekly"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_type:0
+msgid "Monthly"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_type:0
+msgid "Monthday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_type:0
+msgid "Monthweekday"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "First"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Second"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Third"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Fourth"
+msgstr ""
+
+#. module: openbase
+#: selection:openbase.recurrence,recur_month_relative_weight:0
+msgid "Last"
+msgstr ""
 
 #. module: openbase
 #: view:openstc.partner.type:0

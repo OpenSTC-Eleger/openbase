@@ -22,7 +22,18 @@ import datetime as dt
 from datetime import datetime, date, timedelta
 from dateutil import *
 from dateutil.tz import *
+
 from copy import copy
+
+class OpenbaseTag(osv.osv):
+    _name = 'openbase.tag'
+    _columns = {
+        'name':fields.char('Value', size=128),
+        'model':fields.char('Model', size=64),
+        }
+    
+OpenbaseTag()
+
 #Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
 class OpenbaseCore(osv.Model):
     _auto = True
@@ -34,6 +45,8 @@ class OpenbaseCore(osv.Model):
     _fields_names_to_eval = {}
     _actions = {}
     _fields_names = {}
+#    _fields_names_to_add = {'tags_names':'tags'}
+    _fields_names_to_add = {}
 
     #keywords to compute filter domain
     DATE_KEYWORDS = ['FIRSTDAYWEEK', 'LASTDAYWEEK',  'FIRSTDAYMONTH',  'LASTDAYMONTH', 'OVERMONTH', 'OUTDATED']
@@ -63,11 +76,12 @@ class OpenbaseCore(osv.Model):
             in example : {'count':55, 'fields':{'name':{'string':'Kapweeee', type:'char', 'required':True}}, 'saved_filters': [TODO]}
     """
     def getModelMetadata(self, cr, uid, context=None):
-        ret = {'count':0, 'fields':{}}
-        #Comment count because special count from client (swif)
-        #ret['count'] = self.search(cr, uid, [], count=True, context=context)
+        if not context:
+            context = self.pool.get('res.users').context_get(cr, uid, uid,)
+        ret = {'count':0, 'fields':{'id':{'type':'integer'}}}
+        
         #dict containing default keys to return, even if value is False (OpenERP does not return a key where the val is False)
-        mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False, 'help':False}
+        mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False}
         #list containing key to return if set
         authorized_vals = ['selection','domain']
         vals_to_retrieve = authorized_vals + mandatory_vals.keys()
@@ -88,6 +102,7 @@ class OpenbaseCore(osv.Model):
 
     def __init__(self, cr, pool):
         self._columns.update(self._columns_to_add)
+        self._fields_names.update(self._fields_names_to_add)
         self._actions_to_eval.setdefault(self._name,{})
         self._fields_names_to_eval.setdefault(self._name,{})
 
@@ -111,11 +126,17 @@ class OpenbaseCore(osv.Model):
             return res
 
         super(OpenbaseCore,self).__init__(cr,pool)
-         #add _field_names to fields definition of the model
+        #then, add m2m openbase.tag to model
+#        src = self._name.replace('.','_')
+#        target = 'tag'
+#        self._columns.update({'tags':fields.many2many('openbase.tag', '%s_%s_rel'%(src,target), src+'_id', target+'_id', 'Tags',
+#                                                      context={'default_model':self._name}, domain=[('model','=',self._name)])})
+        #add _field_names to fields definition of the model
         for f in self._fields_names.keys():
             #force name of new field with '_names' suffix
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-
+        
+        
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         new_args = []
         #fields = self.fields_get(cr, uid, context=context).items()
