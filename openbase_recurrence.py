@@ -67,7 +67,7 @@ class openbase_recurrence(OpenbaseCore):
         'recur_month_relative_day':fields.selection(DAY_SELECTION, 'Day month'),
         'recur_type':fields.selection(TYPE_RECUR,'Type'),
         'date_start':fields.datetime('First occurrence date', required=True),
-        'recur_length_type':fields.selection([('count','Nb of occurrences'),('until','End date')]),
+        'recur_length_type':fields.selection([('count','Nb of occurrences'),('until','End date')], required=True),
         'date_end':fields.datetime('Last occurrence to generate', required=False),
         'recur_occurrence_nb':fields.integer('Nb of occurrences'),
         'occurrence_ids':fields.one2many('openbase.recurrence.occurrence', 'recurrence_id'),
@@ -217,13 +217,15 @@ class openbase_recurrence(OpenbaseCore):
     def get_dates_from_setting(self, cr, uid, id, context=None):
         recurrence = self.browse(cr, uid, id, context=context)
         dates = []
+        weekday_items = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
         count = recurrence.recur_occurrence_nb if recurrence.recur_length_type == 'count' else False
         date_end = recurrence.date_end if recurrence.recur_length_type == 'until' else False
         if recurrence.recur_type == 'daily':
             dates = self.get_dates_from_daily_setting(cr, uid, recurrence.date_start, recurrence.recur_periodicity, date_end=date_end, count=count, context=context)
 
         elif recurrence.recur_type == 'weekly':
-            weekdays = [val for key,val in switch_date.items() if recurrence['recur_week_'+key]]
+            switch_date = {''}
+            weekdays = [key for key in weekday_items if recurrence['recur_week_'+key]]
             dates = self.get_dates_from_weekly_setting(cr, uid, recurrence.date_start, recurrence.recur_periodicity, weekdays, date_end=date_end, count=count, context=context)
         
         elif recurrence.recur_type == 'monthly':
