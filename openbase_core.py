@@ -156,8 +156,11 @@ class OpenbaseCore(osv.Model):
                     domain[2] = self.get_date_from_keyword(v)
                 #if model has 'complete_name' field
                 elif domain[0]== 'name' and 'complete_name' in self.fields_get(cr, uid, context=context):
-                    #change domain on 'complete_name'
-                    domain[0] = 'complete_name'
+                    #add domain on 'complete_name'
+                    new_domain = copy(domain)
+                    new_domain[0] = 'complete_name'
+                    new_args.insert(0,'|')
+                    new_args.extend([new_domain])
                 elif  type != None and type == 'datetime':
                     try:
                         #Test if already format with hours
