@@ -340,7 +340,7 @@ class users(OpenbaseCore):
             #for each menuitem of OpenSTC, add a slugify-like tag, and a tag-module to be retrieved according to module
             for item in menu:
                 item.update({'tag':parseToUrl(item['name']),
-                             'tag_module':menu_data.get(item['id'],'')})
+                             'tag_module':parseToUrl(menu_data.get(item['id'],''))})
                 menu_dict.update({item['id']:item})
 
             for item in menu:
