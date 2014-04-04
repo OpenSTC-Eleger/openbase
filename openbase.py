@@ -439,7 +439,7 @@ class users(OpenbaseCore):
     @note: if new user is an agent (service_id is set), create res.partner.address to it
     """
     def link_with_partner_address(self, cr, uid, id, context=None):
-        user = self.read(cr, uid, id, ['name','firstname', 'service_id', 'contact_id', 'user_email'],context=context)
+        user = self.read(cr, uid, id, ['name','firstname', 'service_id', 'contact_id', 'user_email', 'post', 'birth_date','address_home','city_home', 'phone'],context=context)
         if user['service_id']:
             service = self.pool.get('openstc.service').read(cr, uid, user['service_id'][0], ['partner_id'], context=context)
 
@@ -447,6 +447,11 @@ class users(OpenbaseCore):
                 'name': '%s%s' % (user['name'], user['firstname'] and ' ' + user['firstname'] or ''),
                 'partner_id':service['partner_id'][0],
                 'email':user['user_email'],
+                'function':user['post'],
+                'birthdate':user['birth_date'],
+                'street':user['address_home'],
+                'city':user['city_home'],
+                'phone':user['phone'],
             }
             #if user has already a contact (for now, we assume that a user has only one linked contact),
             #we update it, else, we create a new one
