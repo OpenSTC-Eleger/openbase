@@ -795,7 +795,7 @@ class ir_filters(osv.osv):
     }
 
     def get_filters(self, cr, uid, model):
-        act_ids = self.search(cr,uid,[('model_id','=',model),('user_id','=',uid)])
+        act_ids = self.search(cr,uid,[('model_id','=',model),'|',('user_id','=',uid),('user_id','=',False)])
         my_acts = self.read(cr, uid, act_ids, [])
         return my_acts
 
