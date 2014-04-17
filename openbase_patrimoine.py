@@ -182,6 +182,14 @@ class equipment(OpenbaseCore):
          'type':'service'
         }
 
+    """ @note: Override to force qty of product to 1 for openstc.site"""
+    def create(self, cr, uid, vals, context=None):
+        ret = super(equipment, self).create(cr, uid, vals, context=context)
+        equipmt = self.read(cr, uid, ret, ['product_product_id'])
+        prod_obj = self.pool.get('product.product')
+        prod_obj.write(cr, uid, equipmt['product_product_id'][0], {'type':'service'}, context=context)
+        return ret
+
 equipment()
 
 #----------------------------------------------------------
@@ -292,7 +300,9 @@ class Site(OpenbaseCore):
     def create(self, cr, uid, vals, context=None):
         ret = super(Site, self).create(cr, uid, vals, context=context)
         site = self.read(cr, uid, ret, ['product_id'])
-        self.pool.get('product.product').openbase_change_stock_qty(cr, uid, site['product_id'][0], 1, context=context)
+        prod_obj = self.pool.get('product.product')
+        prod_obj.openbase_change_stock_qty(cr, uid, site['product_id'][0], 1, context=context)
+        prod_obj.write(cr, uid, site['product_id'][0], {'type':'service'}, context=context)
         return ret
 
 
