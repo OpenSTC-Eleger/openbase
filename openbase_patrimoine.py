@@ -307,3 +307,66 @@ class Site(OpenbaseCore):
 
 
 Site()
+
+
+
+#----------------------------------------------------------
+# Consumable product
+#----------------------------------------------------------
+
+class consumable_type(OpenbaseCore):
+    _name = "openbase.consumable.type"
+    _description = "openbase.consumable.type"
+
+    _columns = {
+            'name': fields.char('Name', size=128, required=True),
+            'code': fields.char('Code', size=32, required=True),
+            'price': fields.float('Price', digits=(5, 2)),
+            'consumable_parent_id': fields.many2one('openbase.consumable.type', 'Consumable parent parent', help='Consumable parent', ondelete='set null'),
+            'service_ids':fields.many2many('openstc.service', 'openbase_consumable_services_rel', 'consumable_id', 'service_id', 'Services'),
+    }
+
+    _sql_constraints = [
+        ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
+    ]
+
+consumable_type()
+
+class consumable(OpenbaseCore):
+    _name = "openbase.consumable"
+    _inherits = {'product.product':'product_id'}
+    _description = "openbase.consumable"
+
+    def name_get(self, cr, uid, ids, context=None):
+        if not len(ids):
+            return []
+        reads = self.read(cr, uid, ids, ['name','type_id'], context=context)
+        res = []
+        for record in reads:
+            #hack to avoid bugs on equipments stored without product_product_id
+            if 'name' in record and record['name']:
+                name = record['name']
+                if record['type_id']:
+                    name =  name + ' / '+ record['type_id'][1]
+                res.append((record['id'], name))
+        return res
+
+    def _name_get_fnc(self, cr, uid, ids, prop, unknow_none, context=None):
+        res = self.name_get(cr, uid, ids, context=context)
+        return dict(res)
+
+
+    _fields_names = {'service_names':'service_ids'}
+
+    _columns = {
+            'name': fields.char('Name', size=128, required=True),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, select=True, store={'openbase.consumable':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type'], 10]}),
+            'code': fields.char('Code', size=32),
+            'type': fields.many2one('openbase.consumable.type', 'Type', required=True),
+            'product_id':fields.many2one('product.product', 'Produit associé', required=True, ondelete="cascade", help=''),
+    }
+    _sql_constraints = [
+        ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
+    ]
+
+consumable()
