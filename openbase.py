@@ -400,7 +400,7 @@ class users(OpenbaseCore):
             'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, store={'res.users':[lambda self,cr,uid,ids,ctx={}:ids, ['name','firstname'], 10]}),
             'service_id':fields.many2one('openstc.service', 'Service    '),
             'service_ids': fields.many2many('openstc.service', 'openstc_user_services_rel', 'user_id', 'service_id', 'Services'),
-            'cost': fields.integer('Coût horaire'),
+            'cost': fields.float('Cost of labour', digits=(5, 2)),
             'post': fields.char('Post', size=128),
             'position': fields.char('Grade', size=128),
             'arrival_date': fields.datetime('Date d\'arrivée'),
