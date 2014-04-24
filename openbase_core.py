@@ -226,3 +226,8 @@ class OpenbaseCore(osv.Model):
                 mail_id = email_obj.send_mail(cr, uid, email_tmpl_id, id)
                 self.pool.get("mail.message").write(cr, uid, [mail_id], {})
                 self.pool.get("mail.message").send(cr, uid, [mail_id])
+
+class OpenbaseCoreWizard(OpenbaseCore):
+    _auto = True
+    _register = False # not visible in ORM registry, meant to be python-inherited only
+    _transient = True # True in a TransientModel
