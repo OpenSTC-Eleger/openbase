@@ -78,7 +78,15 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
-       
+
+       <record id="action_openbase_view_consumable_categories" model="ir.actions.act_window">
+            <field name="name">Catégories des fournitures</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbase.consumable.type</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
         <menuitem id="base.main_menu_openbase" name="OpenBase" sequence="11"/>
 
         <!-- Configuration -->
@@ -103,14 +111,14 @@
    			name="Organisations"
    			parent="menu_configuration_openbase"
    			sequence="1"/>
-		
+
    		<!-- Configuration/Users -->
    		<menuitem action="action_openbase_view_user"
    			id="menu_action_openbase_view_user"
    			parent="menu_configuration_openbase"
    			groups="openbase.openstc_dst"
    			sequence="2"/>
-   		
+
    		<!--  Configuration/Service -->
    		<menuitem action="action_openstc_view_service"
    			id="menu_action_openstc_view_service"
@@ -140,12 +148,21 @@
    			groups="openbase.openstc_dst,openbase.openstc_manager"
    			sequence="6"/>
 
+		<!--  Configuration/Catégories de fourniture -->
+		<menuitem action="action_openbase_view_consumable_categories"
+   			id="menu_action_openbase_view_consumable_categories"
+   			parent="menu_configuration_openbase"
+   			groups="openbase.openstc_dst,openbase.openstc_manager"
+   			sequence="7"/>
+
+
+
    		<menuitem action="action_openstc_view_partner_type2"
    			id="menu_action_openstc_view_partner_type2"
    			parent="menu_configuration_openbase"
    			groups="openbase.openstc_dst"
-   			sequence="7"/>
-   		
+   			sequence="8"/>
+
 	</data>
 
 </openerp>
