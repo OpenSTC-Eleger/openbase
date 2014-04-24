@@ -365,6 +365,11 @@ class consumable(OpenbaseCore):
             'type': fields.many2one('openbase.consumable.type', 'Type', required=True),
             'product_id':fields.many2one('product.product', 'Produit associé', required=True, ondelete="cascade", help=''),
     }
+
+    _defaults = {
+        'type_prod':'fourniture',
+    }
+
     _sql_constraints = [
         ('code_uniq', 'unique (code)', '*code* /codeNameUniq')
     ]
