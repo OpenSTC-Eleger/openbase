@@ -19,7 +19,7 @@
 #############################################################################
 
 import types
-from openbase_core import OpenbaseCore
+from openbase_core import OpenbaseCore, OpenbaseCoreWizard
 from osv import fields, osv
 from datetime import datetime, timedelta
 import calendar
@@ -243,26 +243,36 @@ class openbase_recurrence(OpenbaseCore):
             raise osv.except_osv(_('Error'), _('You must set an existing type of recurrence'))
         ret = list(dates)
         return ret
-
+    
+    """ @return: list of UTC dates (string) generated according to the setting of this record """
+    def get_dates(self, cr, uid, id, context=None):
+        #assert self._transient, 'Error: get_dates is only avaiable for Transient Recurrence models, use OpenbaseCoreWizard to declare such a model'
+        dates = self.get_dates_from_setting(cr, uid, id, context=context)
+        recurrence = self.browse(cr, uid, id, context=context)
+        ret = [self.prepare_occurrences(cr, uid, recurrence, d, context=context) for d in dates]
+        #delete transient record, because only used once to retrieve dates
+        recurrence.unlink()
+        return ret
+    
     """ @return: dict of values used by 'generate_dates' method to build occurrences, can be override to customize behavior"""
     def prepare_occurrences(self, cr, uid, record, date, context=None):
         return {'date_start':date.astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:00'),
-                'recurrence_id':record.id}
+                'actions':['delete'],
+                }
     
     """ @return: True
     @note: create / replace occurrences with current settings"""
-    def generate_dates(self, cr, uid, ids, context=None):
-        if not isinstance(ids, list):
-            ids = [ids]
-        for recurrence in self.browse(cr, uid, ids, context=context):
-            #first, remove all existing occurrences
-            for occurrence in recurrence.occurrence_ids:
-                occurrence.unlink(context=context)
-            dates = self.get_dates_from_setting(cr, uid, recurrence.id, context=context)
-            values = []
-            for d in dates:
-                values.append((0,0,self.prepare_occurrences(cr, uid, recurrence,d, context=context)))
-            recurrence.write({'occurrence_ids':values},context=context)
+    def generate_dates(self, cr, uid, id, context=None):
+        recurrence = self.browse(cr, uid, id, context=context)
+        #first, remove all existing occurrences
+        for occurrence in recurrence.occurrence_ids:
+            occurrence.unlink(context=context)
+        dates = self.get_dates_from_setting(cr, uid, recurrence.id, context=context)
+        values = []
+        for d in dates:
+            values.append((0,0,self.prepare_occurrences(cr, uid, recurrence,d, context=context)))
+        recurrence.write({'occurrence_ids':values},context=context)
+        
         return True
 
 openbase_recurrence()
