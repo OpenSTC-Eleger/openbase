@@ -318,11 +318,13 @@ class consumable_type(OpenbaseCore):
     _name = "openbase.consumable.type"
     _description = "openbase.consumable.type"
 
+    _fields_names = {'service_names':'service_ids'} #'consumable_parent_name':'consumable_parent_id'
+
     _columns = {
             'name': fields.char('Name', size=128, required=True),
             'code': fields.char('Code', size=32, required=True),
             'price': fields.float('Price', digits=(5, 2)),
-            'consumable_parent_id': fields.many2one('openbase.consumable.type', 'Consumable parent parent', help='Consumable parent', ondelete='set null'),
+            #'consumable_parent_id': fields.many2one('openbase.consumable.type', 'Consumable parent parent', help='Consumable parent', ondelete='set null'),
             'service_ids':fields.many2many('openstc.service', 'openbase_consumable_services_rel', 'consumable_id', 'service_id', 'Services'),
     }
 
@@ -356,13 +358,13 @@ class consumable(OpenbaseCore):
         return dict(res)
 
 
-    _fields_names = {'service_names':'service_ids'}
+    _fields_names = {'type_name':'type_id'}
 
     _columns = {
-            'name': fields.char('Name', size=128, required=True),
-            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, select=True, store={'openbase.consumable':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type'], 10]}),
+            #'name': fields.char('Name', size=128, required=True),
+            'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, select=True, store={'openbase.consumable':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type_id'], 10]}),
             'code': fields.char('Code', size=32),
-            'type': fields.many2one('openbase.consumable.type', 'Type', required=True),
+            'type_id': fields.many2one('openbase.consumable.type', 'Type', required=True),
             'product_id':fields.many2one('product.product', 'Produit associé', required=True, ondelete="cascade", help=''),
     }
 

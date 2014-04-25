@@ -71,3 +71,9 @@ access_openbase_consumable_type_employee,openbase_consumable_type employee,model
 access_openbase_consumable_type_qualifier,openbase_consumable_type qualifier,model_openbase_consumable_type,openstc_qualifier,1,1,1,0
 access_openbase_consumable_type_dst,openbase_consumable_type dst,model_openbase_consumable_type,openstc_dst,1,1,1,1
 
+access_openbase_consumable_agent,openbase_consumable agent,model_openbase_consumable,openstc_agent,1,1,1,0
+access_openbase_consumable_employee,openbase_consumable employee,model_openbase_consumable,openstc_employee,1,0,0,0
+access_openbase_consumable_qualifier,openbase_consumable qualifier,model_openbase_consumable,openstc_qualifier,1,1,1,0
+access_openbase_consumable_dst,openbase_consumable dst,model_openbase_consumable,openstc_dst,1,1,1,1
+
+

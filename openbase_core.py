@@ -18,6 +18,7 @@
 #
 #############################################################################
 from osv import fields, osv
+from osv.orm import browse_null
 import datetime as dt
 from datetime import datetime, date, timedelta
 from dateutil import *
@@ -31,7 +32,7 @@ class OpenbaseTag(osv.osv):
         'name':fields.char('Value', size=128),
         'model':fields.char('Model', size=64),
         }
-    
+
 OpenbaseTag()
 
 #Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
@@ -79,7 +80,7 @@ class OpenbaseCore(osv.Model):
         if not context:
             context = self.pool.get('res.users').context_get(cr, uid, uid,)
         ret = {'count':0, 'fields':{'id':{'type':'integer'}}}
-        
+
         #dict containing default keys to return, even if value is False (OpenERP does not return a key where the val is False)
         mandatory_vals = {'type':False,'required':False,'select':False,'readonly':False}
         #list containing key to return if set
@@ -119,6 +120,10 @@ class OpenbaseCore(osv.Model):
                 for fname in name:
                     #many2many browse_record field to map
                     field_ids = obj[self._fields_names_to_eval[self._name][fname]]
+                    if isinstance(field_ids, browse_null)== True :
+                        continue
+                    if not isinstance(field_ids, list):
+                        field_ids = [field_ids]
                     val = []
                     for item in field_ids:
                         val.append([item.id,item.name_get()[0][1]])
@@ -135,8 +140,8 @@ class OpenbaseCore(osv.Model):
         for f in self._fields_names.keys():
             #force name of new field with '_names' suffix
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
-        
-        
+
+
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         new_args = []
         #fields = self.fields_get(cr, uid, context=context).items()
