@@ -323,7 +323,6 @@ class consumable_type(OpenbaseCore):
     _columns = {
             'name': fields.char('Name', size=128, required=True),
             'code': fields.char('Code', size=32, required=True),
-            'price': fields.float('Price', digits=(5, 2)),
             #'consumable_parent_id': fields.many2one('openbase.consumable.type', 'Consumable parent parent', help='Consumable parent', ondelete='set null'),
             'service_ids':fields.many2many('openstc.service', 'openbase_consumable_services_rel', 'consumable_id', 'service_id', 'Services'),
     }
@@ -366,6 +365,7 @@ class consumable(OpenbaseCore):
             'code': fields.char('Code', size=32),
             'type_id': fields.many2one('openbase.consumable.type', 'Type', required=True),
             'product_id':fields.many2one('product.product', 'Produit associé', required=True, ondelete="cascade", help=''),
+            'hour_price':fields.float('Hour price', digits=(4,2)),
     }
 
     _defaults = {
