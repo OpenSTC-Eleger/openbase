@@ -362,10 +362,10 @@ class consumable(OpenbaseCore):
     _columns = {
             #'name': fields.char('Name', size=128, required=True),
             'complete_name': fields.function(_name_get_fnc, type="char", string='Name', method=True, select=True, store={'openbase.consumable':[lambda self,cr,uid,ids,ctx={}:ids, ['name','type_id'], 10]}),
-            'code': fields.char('Code', size=32),
-            'type_id': fields.many2one('openbase.consumable.type', 'Type', required=True),
+            'code': fields.char('Code', required=True, size=32),
+            'type_id': fields.many2one('openbase.consumable.type', 'Type'),
             'product_id':fields.many2one('product.product', 'Produit associé', required=True, ondelete="cascade", help=''),
-            'hour_price':fields.float('Hour price', digits=(4,2)),
+            'price':fields.float('Price', digits=(4,2)),
     }
 
     _defaults = {
