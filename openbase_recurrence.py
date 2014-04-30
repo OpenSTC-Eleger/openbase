@@ -207,7 +207,7 @@ class openbase_recurrence(OpenbaseCore):
 
     """
     @param id: id or recurrence to generate dates
-    @return: list of tuple of checkin,checkout in standard format [('YYYY-mm-yy HH:MM:SS','YYYY-mm-yy HH:MM:SS')] in UTC
+    @return: list of tuple of checkin,checkout in standard format [('YYYY-mm-yy HH:MM:SS','YYYY-mm-yy HH:MM:SS')] with user Timezone
     @note: This method is used internally in OpenERP StandAlone, but could be used in xmlrpc call for custom UI
     => daily recurrence: repeat same resa each x days from date_start to date_end
     => weekly recurrence: repeat same resa for xxx,xxx,xxx weekdays each x weeks from date_start to date_end
@@ -215,6 +215,8 @@ class openbase_recurrence(OpenbaseCore):
     => monthly recurrence 2: repeat same resa each relative day (third Friday of each month)of a month each x months from date_start to date_end
     """
     def get_dates_from_setting(self, cr, uid, id, context=None):
+        if not context:
+            context = self.pool.get('res.users').context_get(cr, uid, uid)
         recurrence = self.browse(cr, uid, id, context=context)
         dates = []
         weekday_items = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
@@ -241,7 +243,7 @@ class openbase_recurrence(OpenbaseCore):
                 raise osv.except_osv(_('Error'),_('You must provide a complete setting for once of monthly recurrence method'))
         else:
             raise osv.except_osv(_('Error'), _('You must set an existing type of recurrence'))
-        ret = list(dates)
+        ret = [pytz.timezone(context.get('tz')).localize(d.replace(tzinfo=None)) for d in dates]
         return ret
     
     """ @return: list of UTC dates (string) generated according to the setting of this record """
@@ -256,9 +258,10 @@ class openbase_recurrence(OpenbaseCore):
     
     """ @return: dict of values used by 'generate_dates' method to build occurrences, can be override to customize behavior"""
     def prepare_occurrences(self, cr, uid, record, date, context=None):
-        return {'date_start':date.astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:00'),
-                'actions':['delete'],
-                }
+        ret = {'date_start':date.astimezone(pytz.utc).strftime('%Y-%m-%d %H:%M:00'),
+               'actions':['delete'],
+        }
+        return ret
     
     """ @return: True
     @note: create / replace occurrences with current settings"""
