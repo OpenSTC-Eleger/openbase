@@ -430,8 +430,12 @@ class users(OpenbaseCore):
         if not isinstance(ids,list):
             ids = [ids]
         for user in self.read(cr, uid, ids, ['service_id','service_ids'],context=context):
-            if user['service_id'] and user['service_id'][0] not in user['service_ids']:
-                self.write(cr, uid, user['id'], {'service_ids':[(4,user['service_id'][0])]})
+            if user['service_id'] : #and user['service_id'][0] not in user['service_ids']:
+                service_ids = self.pool.get("openstc.service").search(cr, uid,[('id', 'child_of', user['service_id'][0] )])
+                for id in service_ids:
+                    if id not in user['service_ids']:
+                        self.write(cr, uid, user['id'], {'service_ids':[(4,id)]})
+
         return True
 
     """
