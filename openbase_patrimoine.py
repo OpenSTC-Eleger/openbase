@@ -106,7 +106,8 @@ class equipment(OpenbaseCore):
     _description = "openstc.equipment"
     #_inherit = 'product.product'
     _inherits = {'product.product': "product_product_id"}
-
+    ## @return: "{name} / {categ_id}" (if categ_id is set, else "name" only)
+    ## 
     def name_get(self, cr, uid, ids, context=None):
         if not len(ids):
             return []
@@ -170,19 +171,20 @@ class equipment(OpenbaseCore):
             'purchase_price':fields.float('Prix d\'achat',digits=(6,2)),
             'hour_price':fields.float('Hour price', digits=(4,2)),
             'built_date':fields.date('Built Date'),
-            'warranty_date':fields.date('End date of Warranty'),
+            'warranty_date':fields.date('End date of Warranty')
             #'year': fields.integer('Year', select=1),
             #Calcul total price and liters
             #'oil_qtity': fields.integer('oil quantity', select=1),
             #'oil_price': fields.integer('oil price', select=1),
-    }
+        }
     _defaults = {
          'type_prod':'materiel',
          'internal_use': False,
          'type':'service'
         }
 
-    """ @note: Override to force qty of product to 1 for openstc.site"""
+    """ @note: Override to force qty of product to 1 for openstc.site
+    """
     def create(self, cr, uid, vals, context=None):
         ret = super(equipment, self).create(cr, uid, vals, context=context)
         equipmt = self.read(cr, uid, ret, ['product_product_id'])
@@ -313,7 +315,7 @@ class Site(OpenbaseCore):
         'type':'service',
         }
 
-    """ @note: Override to force qty of product to 1 for openstc.site"""
+    ## @note: Override to force qty of product to 1
     def create(self, cr, uid, vals, context=None):
         ret = super(Site, self).create(cr, uid, vals, context=context)
         site = self.read(cr, uid, ret, ['product_id'])

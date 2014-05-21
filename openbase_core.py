@@ -35,18 +35,25 @@ class OpenbaseTag(osv.osv):
 
 OpenbaseTag()
 
-#Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
+##Core abstract model to add SICLIC custom features, such as actions rights calculation (to be used in SICLIC custom GUI)
 class OpenbaseCore(osv.Model):
     _auto = True
     _register = False # not visible in ORM registry, meant to be python-inherited only
     _transient = False # True in a TransientModel
 
-
+    ##Internal use
     _actions_to_eval = {}
+    ##Internal use
     _fields_names_to_eval = {}
+    ##Attribute used to parse the 'actions' field.
+    ##It's a dict, where the values are functions with the following signature : (cr, uid, record, groups_code)
+    ## where 'record' is a browse_record of the current record, 'groups_code' is a list of the CODE of the groups_id of the current user
     _actions = {}
+    ##Attribute used by the __init__ method to add specific fields.
+    ##It's a dict : {'many2many_field': 'new_field'} where each 'new_field' will be created automatically, these fields return a list of [id,name_get()] using the many2many relationship
     _fields_names = {}
 #    _fields_names_to_add = {'tags_names':'tags'}
+    ##Internal use, define the fields to addfor each model inhering from OpenbaseCore
     _fields_names_to_add = {}
 
     #keywords to compute filter domain
@@ -54,7 +61,11 @@ class OpenbaseCore(osv.Model):
     DATE_FMT = "%Y-%m-%d"
     DATE_TIME_FMT = "%Y-%m-%d %H:%M:%S"
 
-
+    ##Method used to compute 'actions' functionnal-field, this field is created for object inheriting from OpenbaseCore
+    ## it uses the attribute '_actions' to parse the values. this attribute should be a dict, where the values are a function implementation with the following format : 
+    ##    {'action1': lambda self, cr, uid, record, groups_code: record.state == 'draft'
+    ## where 'record' is the browse_record of the current object, 'groups_code' is a list of string where each string is the 'code' value of the groups of the current user ('uid') 
+    ## @return: List of String, where strings are actions authorized for the user for the records, using the _actions attribute definition 
     def _get_actions(self, cr, uid, ids, myFields ,arg, context=None):
         #default value: empty string for each id
         ret = {}.fromkeys(ids,'')
@@ -69,13 +80,13 @@ class OpenbaseCore(osv.Model):
         'actions':fields.function(_get_actions, method=True, string="Actions possibles",type="char", store=False),
         }
 
-    """
-    @param uid: user who whants the metadata
-    @return: dict containing number of records (that user can see),
-            model fields definition (another dict with field as key and list as definition),
-            @todo: filters authorized for this user too ?
-            in example : {'count':55, 'fields':{'name':{'string':'Kapweeee', type:'char', 'required':True}}, 'saved_filters': [TODO]}
-    """
+    
+    ##@param uid: user who whants the metadata
+    ##@return: dict containing number of records (that user can see),
+    ##        model fields definition (another dict with field as key and list as definition),
+    ##        @todo: filters authorized for this user too ?
+    ##        in example : {'count':55, 'fields':{'name':{'string':'Kapweeee', type:'char', 'required':True}}, 'saved_filters': [TODO]}
+    ##
     def getModelMetadata(self, cr, uid, context=None):
         if not context:
             context = self.pool.get('res.users').context_get(cr, uid, uid,)
@@ -100,7 +111,9 @@ class OpenbaseCore(osv.Model):
             ret['fields'].update({f:final_val})
 
         return ret
-
+    
+    ##Override the __init__ method to add 'actions' field to the model, and to add fields parsing the _field_names attribute
+    ##field_names look like {'existing_field': 'new_field'} where 'existing_field' is *2many field and 'new_field' will be created, it returns a list of [id,name] of the related record
     def __init__(self, cr, pool):
         self._columns.update(self._columns_to_add)
         self._fields_names.update(self._fields_names_to_add)
@@ -141,7 +154,7 @@ class OpenbaseCore(osv.Model):
             #force name of new field with '_names' suffix
             self._columns.update({f:fields.function(_get_fields_names, type='char',method=True, multi='field_names',store=False)})
 
-
+    ##Override of the std search() method to be able to parse domain with dynamic values defined in DATE_KEYWORDS
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         new_args = []
         #fields = self.fields_get(cr, uid, context=context).items()
@@ -187,14 +200,13 @@ class OpenbaseCore(osv.Model):
         return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
 
-    """
-    @param keyword: keyword to compute corresponding date
-    @return: return string date for domain search
-        domain is used to filter OpenBase object (ask (request), project (intervention)  :
-        * from current week
-        * from current month
-        * delayed (deadline spent)
-    """
+    
+    ##@param keyword: keyword to compute corresponding date
+    ##@return: return string date for domain search
+    ##    domain is used to filter OpenBase object (ask (request), project (intervention)  :
+    ##    * from current week
+    ##    * from current month
+    ##    * delayed (deadline spent)
     def get_date_from_keyword(self, keyword):
         val = ""
         timeDtFrmt = "%Y-%m-%d %H:%M:%S"
@@ -216,7 +228,12 @@ class OpenbaseCore(osv.Model):
         elif keyword == 'OUTDATED':
             return datetime.strftime(today,timeDtFrmt)
         return val
-
+    
+    ##Implements standard method to send a mail with OpenERP.
+    ## @param id: the object id on which to parse the mail
+    ## @param vals: dict ({'state':[]}) where 'state' defining which mail should be sent (used to retrieve the corresponding mail_template)
+    ## @param module: the module of the template to be parsed
+    ## @param mail_templates: the template(s) available for this object
     def send_mail(self, cr, uid, id, vals, module, model, mail_templates):
         email_obj = self.pool.get("email.template")
         email_tmpl_id = 0

@@ -213,7 +213,10 @@ class res_partner_address(OpenbaseCore):
 
         res = super(res_partner_address, self).write(cr, uid, ids, data, context)
         return res
-
+    
+    ## method to create /update a res.users when creating / updating a res.partner.address
+    ## (the same behavior is natively implemented in OpenERp 7)
+    ## @param params: dict coming from create / update std method (the one used to create / update the res.partner.address record)
     def create_account(self, cr, uid, ids, params, context):
         if _test_params(params, ['login','password','name'])!= False :
 
@@ -289,7 +292,9 @@ class users(OpenbaseCore):
             group_ids = group_obj.search(cr, uid, [('code','=', arg),('id','in',user['groups_id'])])
             res[id] = True if len( group_ids ) != 0 else False
          return res
-
+    
+    ## @return: a dict representing the OpenSTC menu according to uid authorizations
+    ## the dict has the following format : {'tag_root_module1': {'tag_module': moduleName, 'tag': 'sub-menu1', 'name': 'Sub Menu 1', 'children': [other_sub_sub_menus_def......] }, ...}
     def get_menu_formatted(self, cr, uid, context=None):
         def parseToUrl(val):
             regexp_remove = re.compile("[\-:]+")
@@ -360,7 +365,7 @@ class users(OpenbaseCore):
         'delete':lambda self,cr,uid,record, groups_code: 'DIRE' in groups_code,
         }
 
-    #get OpenSTC groups and retrieve the higher one the user has
+    ##get OpenSTC groups and retrieve the higher one the user has
     def _get_current_group(self, cr, uid, ids, name ,arg, context=None):
 
         def weight_hierarchy(current_group, groups, i=0):
@@ -421,11 +426,10 @@ class users(OpenbaseCore):
         'context_tz' : lambda self, cr, uid, context : 'Europe/Paris',
     }
 
-    """
-    @param ids: user to check
-    @note: this method is used to check that service_id is in service_ids (for work-model purpose)
-            after each create / update action on res.users
-    """
+##    @param ids: user to check
+##    @note: this method is used to check that service_id is in service_ids (for work-model purpose)
+##            after each create / update action on res.users
+
     def check_service_id_and_service_ids(self, cr, uid, ids, context=None):
         if not isinstance(ids,list):
             ids = [ids]
@@ -438,10 +442,9 @@ class users(OpenbaseCore):
 
         return True
 
-    """
-    @param id: id of user to link with a new res.partner.address
-    @note: if new user is an agent (service_id is set), create res.partner.address to it
-    """
+##    @param id: id of user to link with a new res.partner.address
+##    @note: if new user is an agent (service_id is set), create res.partner.address to it
+
     def link_with_partner_address(self, cr, uid, id, context=None):
         user = self.read(cr, uid, id, ['name','firstname', 'service_id', 'contact_id', 'user_email', 'post', 'birth_date','address_home','city_home', 'phone'],context=context)
         if user['service_id']:
@@ -515,15 +518,14 @@ class users(OpenbaseCore):
             #Calculates the agents can be added to the team
 
 
+    ## @rtype : List
+    ## @param cr: database cursor
+    ## @param uid: current_connected_user
+    ## @param target_user_id: the target user
+    ## @param context:
+    ## @return: List of teams
     def get_manageable_teams(self,cr,uid,target_user_id, context=None):
-        """
-        :rtype : List
-        :param cr: database cursor
-        :param uid: current_connected_user
-        :param target_user_id: the target user
-        :param context:
-        :return: List of teams
-        """
+
         target_user = self.browse(cr, uid, target_user_id, context=context)
         teams_collection = self.pool.get('openstc.team')
         formater = lambda team: {'id': team['id'] ,
@@ -545,18 +547,16 @@ class users(OpenbaseCore):
         teams = teams_collection.read(cr,uid,teams_ids,['id','name','manager_id','members'])
         return map(formater,teams)
 
+    ## Returns the user list available for task assignations
+    ## for DST: all user from technical services
+    ## for MANAGER : all user frpù services (and their children) manager belongs to
+    ## for TEAM MANAGER: all user from teams TEAM MANAGER belongs to
+    ## @rtype : List
+    ## @param cr: database cursor
+    ## @param uid: current user id
+    ## @param target_user_id: target user id
+    ## @param context: current user context
     def get_manageable_officers(self, cr, uid, target_user_id, context=None):
-        """
-        Returns the user list available for task assignations
-        for DST: all user from technical services
-        for MANAGER : all user frpù services (and their children) manager belongs to
-        for TEAM MANAGER: all user from teams TEAM MANAGER belongs to
-        :rtype : List
-        :param cr: database cursor
-        :param uid: current user id
-        :param target_user_id: target user id
-        :param context: current user context
-        """
         formater = lambda officer: { 'id': officer['id'],
                                      'name' : officer['name'],
                                      'firstname' : officer['firstname'],
@@ -588,7 +588,7 @@ class users(OpenbaseCore):
                 'officers': self.get_manageable_officers(cr,uid,target_user_id)}
 
 
-    #Get lists officers/teams where user is the referent on
+    ##Get lists officers/teams where user is the referent on
     def getTeamsAndOfficers(self, cr, uid, ids,context=None):
         res = {}
         user_obj = self.pool.get('res.users')
@@ -695,7 +695,7 @@ class team(OpenbaseCore):
     _rec_name = "name"
 
 
-    #Calculates the agents can be added to the team
+    ##Calculates the agents can be added to the team
     def _get_free_users(self, cr, uid, ids, fields, arg, context):
         res = {}
         user_obj = self.pool.get('res.users')
@@ -743,7 +743,7 @@ class team(OpenbaseCore):
             'free_user_ids' : fields.function(_get_free_users, method=True,type='many2one', store=False),
 
     }
-    #Calculates the agents can be added to the team
+    ##Calculates the agents can be added to the team
     def _get_members(self, cr, uid, ids, fields, arg, context):
         res = {}
         user_obj = self.pool.get('res.users')
@@ -797,7 +797,9 @@ class ir_filters(osv.osv):
             'description': fields.text('Description'),
             'pre_recorded': fields.boolean('Pre recorded'),
     }
-
+    
+    ## Override of std OpenERP method, to add the filters available for everybody with the user ones
+    ## @param model: the model_id used to filter the ir.filters
     def get_filters(self, cr, uid, model):
         act_ids = self.search(cr,uid,[('model_id','=',model),'|',('user_id','=',uid),('user_id','=',False)])
         my_acts = self.read(cr, uid, act_ids, [])

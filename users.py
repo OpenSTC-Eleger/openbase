@@ -19,7 +19,7 @@
 #############################################################################
 from openbase_core import OpenbaseCore
 from osv import fields,osv
-#override of res.users to add accreditation and licenses of each user of the company
+##override of res.users to add accreditation and licenses of each user of the company
 
 class openstc_users_accreditation(OpenbaseCore):
     
