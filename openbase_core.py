@@ -199,7 +199,11 @@ class OpenbaseCore(osv.Model):
 
         return super(OpenbaseCore, self).search(cr, uid, new_args, offset, limit, order, context, count)
 
-
+    ## Override of standard read() method, to force 'user-context' to be computed if not yet defined
+    def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read' ):
+        if not context :
+            context = self.pool.get('res.users').context_get(cr, uid, uid)
+        return super(OpenbaseCore, self).read(cr, uid, ids, fields=fields, context=context, load=load)
     
     ##@param keyword: keyword to compute corresponding date
     ##@return: return string date for domain search
