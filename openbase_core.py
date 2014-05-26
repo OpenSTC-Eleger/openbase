@@ -175,7 +175,7 @@ class OpenbaseCore(osv.Model):
                 #if model has 'complete_name' field
                 elif domain[0]== 'name' and 'complete_name' in self.fields_get(cr, uid, context=context):
                     #add domain on 'complete_name'
-                    new_domain = copy(domain)
+                    new_domain = list(domain)
                     new_domain[0] = 'complete_name'
                     new_args.insert(0,'|')
                     new_args.extend([new_domain])
@@ -203,7 +203,7 @@ class OpenbaseCore(osv.Model):
     def read(self, cr, uid, ids, fields=None, context=None, load='_classic_read' ):
         if not context :
             context = self.pool.get('res.users').context_get(cr, uid, uid)
-        return super(OpenbaseCore, self).read(cr, uid, ids, fields=fields, context=context, load=load)
+        return super(OpenbaseCore, self).read(cr, uid, ids, fields, context=context, load=load)
     
     ##@param keyword: keyword to compute corresponding date
     ##@return: return string date for domain search
