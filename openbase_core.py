@@ -157,6 +157,7 @@ class OpenbaseCore(osv.Model):
     ##Override of the std search() method to be able to parse domain with dynamic values defined in DATE_KEYWORDS
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
         new_args = []
+        model_fields = self.fields_get(cr, uid, context=context)
         #fields = self.fields_get(cr, uid, context=context).items()
         for id, domain  in enumerate(args) :
             #Test if domain tuple = ('key','operator','value')
@@ -173,7 +174,7 @@ class OpenbaseCore(osv.Model):
                     #For records filters : Adapts keyword in domain to specials filter that need to be computed (cf get_date_from_keyword method)
                     domain[2] = self.get_date_from_keyword(v)
                 #if model has 'complete_name' field
-                elif domain[0]== 'name' and 'complete_name' in self.fields_get(cr, uid, context=context):
+                elif domain[0]== 'name' and 'complete_name' in model_fields and (model_fields['complete_name'].get('selectable',False)):
                     #add domain on 'complete_name'
                     new_domain = list(domain)
                     new_domain[0] = 'complete_name'
