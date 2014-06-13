@@ -20,6 +20,7 @@
 import openbase_core
 import openbase
 import users
+import validation
 import openbase_patrimoine
 import openbase_recurrence
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

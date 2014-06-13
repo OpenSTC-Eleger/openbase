@@ -37,7 +37,10 @@
         "views/base_data.xml",
         "views/openbase_views.xml",
         "views/openbase_menu.xml",
+        
         "security/openbase_security.xml",
+        
+        "workflow/validation_workflow.xml",
         
         "security/ir.model.access.csv",
              ],

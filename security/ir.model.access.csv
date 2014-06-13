@@ -81,6 +81,7 @@ access_openstc_equipment_lines_employee,openstc_equipment_lines employee,model_o
 access_openstc_equipment_lines_qualifier,openstc_equipment_lines qualifier,model_openstc_equipment_lines,openstc_qualifier,1,1,1,0
 access_openstc_equipment_lines_dst,openstc_equipment_lines dst,model_openstc_equipment_lines,openstc_dst,1,1,1,1
 
+access_openbase_validation_item_all_users,openbase_validation_item all_users,model_openbase_validation_item,openstc_employee,1,1,1,1
 
 
 

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+	    
+		<record id="openbase_validation" model="workflow">
+			<field name="name">Validation Process Workflow</field>
+			<field name="osv">openbase.validation</field>
+			<field name="on_create">True</field>
+		</record>
+		
+		<record id="act_draft" model="workflow.activity">
+			<field name="name">Draft (prepare validation process)</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+			<field name="action">wkf_draft()</field>
+			<field name="flow_start" eval="True"/>
+		</record>
+
+		
+		<record id="act_wait" model="workflow.activity">
+			<field name="name">Wait a validation</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+			<field name="action">wkf_wait()</field>
+			<field name="flow_start" eval="False"/>
+		</record>
+	
+		<record id="act_confirm" model="workflow.activity">
+			<field name="name">Confirm (perform a validation)</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+			<field name="action">wkf_confirm()</field>
+		</record>
+		
+		<record id="act_check" model="workflow.activity">
+			<field name="name">Check remaining validations</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+		</record>
+		
+		<record id="act_do_or" model="workflow.activity">
+			<field name="name">Apply logical Or validator</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+			<field name="action">wkf_do_or()</field>
+		</record>
+		
+		<record id="act_do_next" model="workflow.activity">
+			<field name="name">Apply next validator</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+			<field name="action">wkf_do_next()</field>
+		</record>
+		
+		<record id="act_refused" model="workflow.activity">
+			<field name="name">Refused</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+			<field name="action">wkf_refused()</field>
+			<field name="flow_stop" eval="True"/>
+		</record>
+		
+		<record id="act_done" model="workflow.activity">
+			<field name="name">Validated (wkf done)</field>
+			<field name="wkf_id" ref="openbase_validation" />
+			<field name="kind">function</field>
+			<field name="action">wkf_done()</field>
+			<field name="flow_stop" eval="True"/>
+		</record>
+		
+		<record id="trans_draft_wait" model="workflow.transition">
+		    <field name="act_from" ref="act_draft"/>
+		    <field name="act_to" ref="act_wait"/>
+		</record>
+		
+		<record id="trans_wait_confirm" model="workflow.transition">
+		    <field name="act_from" ref="act_wait"/>
+		    <field name="act_to" ref="act_confirm"/>
+		    <field name="signal">confirm</field>
+		</record>
+		
+		<record id="trans_confirm_check" model="workflow.transition">
+		    <field name="act_from" ref="act_confirm"/>
+		    <field name="act_to" ref="act_check"/>
+		    <field name="condition">validation_type == 'and'</field>
+		</record>
+		
+		<record id="trans_confirm_do_or" model="workflow.transition">
+		    <field name="act_from" ref="act_confirm"/>
+		    <field name="act_to" ref="act_do_or"/>
+		    <field name="condition">validation_type == 'or'</field>
+		</record>
+		
+		<record id="trans_do_or_check" model="workflow.transition">
+		    <field name="act_from" ref="act_do_or"/>
+		    <field name="act_to" ref="act_check"/>
+		</record>
+		
+		<record id="trans_confirm_do_next" model="workflow.transition">
+		    <field name="act_from" ref="act_confirm"/>
+		    <field name="act_to" ref="act_do_next"/>
+		    <field name="condition">validation_type == 'next'</field>
+		</record>
+		
+		<record id="trans_do_next_check" model="workflow.transition">
+		    <field name="act_from" ref="act_do_next"/>
+		    <field name="act_to" ref="act_check"/>
+		</record>
+		
+		<record id="trans_check_wait" model="workflow.transition">
+		    <field name="act_from" ref="act_check"/>
+		    <field name="act_to" ref="act_wait"/>
+		    <field name="condition">bool(waiting_validation_item_ids)</field>
+		</record>
+		
+		<record id="trans_check_done" model="workflow.transition">
+		    <field name="act_from" ref="act_check"/>
+		    <field name="act_to" ref="act_done"/>
+		    <field name="condition">not waiting_validation_item_ids</field>
+		</record>
+		
+		<record id="trans_wait_refused" model="workflow.transition">
+		    <field name="act_from" ref="act_wait"/>
+		    <field name="act_to" ref="act_refused"/>
+		    <field name="signal">refuse</field>
+		</record>
+		
+	</data>
+</openerp>
