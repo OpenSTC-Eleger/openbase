@@ -58,6 +58,7 @@
 			<field name="kind">function</field>
 			<field name="action">wkf_refused()</field>
 			<field name="flow_stop" eval="True"/>
+			<field name="signal_send">subflow.check_refused</field>
 		</record>
 		
 		<record id="act_done" model="workflow.activity">
@@ -66,6 +67,7 @@
 			<field name="kind">function</field>
 			<field name="action">wkf_done()</field>
 			<field name="flow_stop" eval="True"/>
+			<field name="signal_send">subflow.check_done</field>
 		</record>
 		
 		<record id="trans_draft_wait" model="workflow.transition">
@@ -74,12 +76,12 @@
 		    <field name="condition">not current_user_item_id</field>
 		</record>
 		
-		<record id="trans_draft_wait" model="workflow.transition">
+		<record id="trans_draft_confirm" model="workflow.transition">
 		    <field name="act_from" ref="act_draft"/>
 		    <field name="act_to" ref="act_confirm"/>
 		    <field name="condition">bool(current_user_item_id)</field>
 		</record>
-				
+		
 		<record id="trans_wait_confirm" model="workflow.transition">
 		    <field name="act_from" ref="act_wait"/>
 		    <field name="act_to" ref="act_confirm"/>

@@ -45,6 +45,7 @@
             <field name="type">form</field>
             <field name="arch" type="xml">
                  <separator string="Email Preferences"  position="before" >
+                 	<field name="service_id"/>
                  	<field name="service_ids"/>
                  </separator>
             </field>
@@ -144,7 +145,12 @@
                 	<group colspan="2" col="2">
                 		<separator string="Organisation" colspan="2"/>
                 		<field name="manager_id"/>
+                		<field name="elu_id"/>
                 		<field name="category_ids" />
+                	</group>
+                	<group colspan="2" col="2">
+                	    <field name="purchase_validation_type"/>
+                	    <field name="purchase_validation_item_ids"/>
                 	</group>
                 </form>
             </field>
