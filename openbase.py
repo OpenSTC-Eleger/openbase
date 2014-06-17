@@ -396,7 +396,13 @@ class users(OpenbaseCore):
                     #and remove user for next loops
                     users.remove(user)
         return ret
-
+    
+    def get_status(self, cr, uid, context=None):
+        return [('agent','Agent'), ('elected-member', 'Elu')]
+    
+    def _get_status(self, cr, uid, context=None):
+        return self.get_status(cr, uid, context=context) 
+    
     _fields_names = {'service_names':'service_ids',
                     }
 
@@ -422,9 +428,12 @@ class users(OpenbaseCore):
             'isManager' : fields.function(_get_group, arg="MANA", method=True,type='boolean', store=False), #MANAGER group
             'current_group':fields.function(_get_current_group, arg="openstc", method=True, string="OpenSTC higher group", help="The OpenSTC higher group of the user"),
             'openresa_group':fields.function(_get_current_group,  arg="openresa", method=True, string="OpenResa higher group", help="The OpenResa higher group of the user"),
+            
+            'status': fields.selection(_get_status, 'Status', required=True),
     }
     _defaults = {
         'context_tz' : lambda self, cr, uid, context : 'Europe/Paris',
+        'status': lambda *a: 'agent'
     }
 
 ##    @param ids: user to check
