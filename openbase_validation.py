@@ -236,17 +236,4 @@ class OpenbaseValidationLog(OpenbaseCore):
     }
     
 OpenbaseValidationLog()
-
-class OpenstcService(OpenbaseCore):
-    
-    _inherit = 'openstc.service'
-    _columns = {
-        'purchase_validation_type': fields.selection([('and', 'ET'), ('or', 'OU'), ('next', 'Ensuite')], 'Validation type'),
-        'purchase_validation_item_ids':fields.many2many('openbase.validation.item', 'purchase_validation_validation_item_rel', 'validation_id', 'item_id', 'Validations'),
-    }
-    
-    _defaults = {
-        'purchase_validation_type': lambda *a: 'next',
-    }
-OpenstcService()
     
