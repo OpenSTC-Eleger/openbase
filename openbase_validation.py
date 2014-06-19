@@ -40,7 +40,7 @@ class OpenbaseValidationItem(OpenbaseCore):
     ## @return: list of tuples defing available selection of the field 'role'
     ## can be override to add more roles
     def get_role_values(self, cr, uid, context=None):
-        return [('manager', 'Responsable'), ('elu', 'Elu')]
+        return [('manager', 'Responsable'), ('elected_member', 'Elu')]
     
     def _get_role_values(self, cr, uid, context=None):
         return self.get_role_values(cr, uid, context=context)
@@ -50,7 +50,7 @@ class OpenbaseValidationItem(OpenbaseCore):
     
     def _get_user(self, cr, uid, ids, name, args, context=None):
         ret = {}.fromkeys(ids, False)
-        switch = {'manager': 'manager_id', 'elu': 'elu_id'}
+        switch = {'manager': 'manager_id', 'elected_member': 'elected_member_id'}
         for validation in self.browse(cr, uid, ids, context=context):
             #retrieve which field of the service to read
             field = switch.get(validation.role, False)
