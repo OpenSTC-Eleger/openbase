@@ -51,17 +51,31 @@ class service(OpenbaseCore):
         }
 
     _columns = {
-            'name': fields.char('Name', size=128, required=True),
-            'favcolor':  fields.char('Name', size=128),
-            'code': fields.char('Code', size=32, required=True),
-            'service_id':fields.many2one('openstc.service', 'Service Parent'),
-            'technical': fields.boolean('Technical service'),
-            'manager_id': fields.many2one('res.users', 'Manager'),
-            'elected_member_id': fields.many2one('res.users', 'Elu'),
-            'user_ids': fields.one2many('res.users', 'service_id', "Users"),
-            'team_ids': fields.many2many('openstc.team', 'openstc_team_services_rel', 'service_id','team_id','Teams'),
-            'site_ids':fields.many2many('openstc.site', 'openstc_site_services_rel', 'service_id', 'site_id', 'Sites'),
-            'partner_id':fields.many2one('res.partner','Partner'),
+        'name': fields.char('Name', size=128, required=True),
+        'favcolor':  fields.char('Name', size=128),
+        'code': fields.char('Code', size=32, required=True),
+        'service_id':fields.many2one('openstc.service', 'Service Parent'),
+        'technical': fields.boolean('Technical service'),
+        'manager_id': fields.many2one('res.users', 'Manager'),
+        'elected_member_id': fields.many2one('res.users', 'Elu'),
+        'user_ids': fields.one2many('res.users', 'service_id', "Users"),
+        'team_ids': fields.many2many('openstc.team', 'openstc_team_services_rel', 'service_id','team_id','Teams'),
+        'site_ids':fields.many2many('openstc.site', 'openstc_site_services_rel', 'service_id', 'site_id', 'Sites'),
+        'partner_id':fields.many2one('res.partner','Partner'),
+        
+        'buying_threshold': fields.float('Threshold for purchases'),
+        
+        'purchase_validation_type': fields.selection([('and', 'ET'), ('or', 'OU'), ('next', 'Ensuite')], 'Validation type'),
+        'purchase_validation_item_ids':fields.many2many('openbase.validation.item', 'purchase_validation_validation_item_rel', 'validation_id', 'item_id', 'Validations'),
+        'has_purchase_validation': fields.boolean('Purchase Validation ?'),
+        'purchase_max_amount_no_market': fields.float('out market Purchases max amount'),
+    }
+    
+    _defaults = {
+        'buying_threshold': lambda *a: 0.0,
+        'purchase_validation_type': lambda *a: 'next',
+        'has_purchase_validation': lambda *a: False,
+        'purchase_max_amount_no_market': lambda *a: 0.0,
     }
 
     def link_with_partner(self, cr, uid, id, context=None):
